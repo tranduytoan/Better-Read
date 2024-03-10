@@ -1,6 +1,6 @@
-package dbmsforeveread.foreveread.repository;
+package dbmsforeveread.foreveread.book.repository;
 
-import dbmsforeveread.foreveread.model.Book;
+import dbmsforeveread.foreveread.book.model.Book;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 

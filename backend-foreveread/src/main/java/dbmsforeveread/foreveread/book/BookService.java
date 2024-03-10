@@ -1,7 +1,7 @@
-package dbmsforeveread.foreveread.service;
+package dbmsforeveread.foreveread.book;
 
-import dbmsforeveread.foreveread.model.Book;
-import dbmsforeveread.foreveread.repository.BookRepository;
+import dbmsforeveread.foreveread.book.model.Book;
+import dbmsforeveread.foreveread.book.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
