@@ -9,30 +9,26 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
-    @Value("${spring.redis.host}")
+    @Value("${spring.data.redis.host}")
     private String redisHost;
 
-    @Value("${spring.redis.port}")
+    @Value("${spring.data.redis.port}")
     private int redisPort;
 
     @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        // Tạo Standalone Connection tới Redis
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(redisHost, redisPort));
-    }
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(factory);
 
-    @Bean
-    @Primary
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        // Tạo một RedisTemplate
-        // Với Key là Object
-        // Value là Object
-        // RedisTemplate giúp chúng ta thao tác với Redis
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.setKeySerializer(new StringRedisSerializer());
+
         return template;
     }
 }
