@@ -39,7 +39,7 @@ public class BookController {
 //    }
     @GetMapping("")
     public ResponseEntity<BookListResponse> getBooks(
-            @RequestParam(defaultValue = "data") String title,
+            @RequestParam(defaultValue = "atomic") String title,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) throws JsonProcessingException {
@@ -76,6 +76,8 @@ public class BookController {
             if (book == null) {
                 book = bookService.findById(id);
                 bookRedisService.saveBook(book);
+                logger.info(String.format("id = %s", id));
+                System.out.println("Book found with id: " + id);
             }
             return new ResponseEntity<>(book, HttpStatus.OK);
         } catch (Exception e) {

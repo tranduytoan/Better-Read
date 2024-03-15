@@ -1,0 +1,22 @@
+<div class="md-3">
+  <input class="form-control" type="text" [(ngModel)]="searchQuery" placeholder="search books by title" />
+  <button class="btn-outline-danger" (click)="searchBooks(searchQuery, 0)">Search</button>
+</div>
+
+<div *ngIf="books; else noResultsTemplate">
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let book of books">
+      <h2> <a [routerLink]="['/book', book.id]" class="stretched-link link-underline title-book">{{book.title}}</a></h2>
+      <p>{{book.id}}</p>
+      <p class="mb-1">{{book.author_keys}}</p>
+    </li>
+  </ul>
+</div>
+<ng-template #noResultsTemplate>
+  <p>No results found.</p>
+</ng-template>
+<!--<div *ngIf="totalPages > 1">-->
+<!--  <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i)">-->
+<!--    {{ i + 1 }}-->
+<!--  </button>-->
+<!--</div>-->
