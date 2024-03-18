@@ -20,8 +20,8 @@ public class BookService {
 //        return bookRepository.findAll(PageRequest.of(0, 5));
 //    }
 
-    public Page<Book> getBooks(String name, PageRequest pageRequest) {
-        return bookRepository.findByTitleContainingIgnoreCase(name, pageRequest);
+    public Page<Book> getBooks(String name, Pageable pageable) {
+        return bookRepository.findByTitleContainingIgnoreCase(name, pageable);
     }
     public Book findById(String id) {
         return bookRepository.findById(id).orElse(null);
@@ -37,7 +37,7 @@ public class BookService {
     public void delete(String id) {
         bookRepository.deleteById(id);
     }
-    public List<Book> search(String searchText) {
-        return bookRepository.findByTitleOrAuthor(searchText);
-    }
+//    public List<Book> search(String searchText) {
+//        return bookRepository.findByTitleOrAuthor(searchText);
+//    }
 }

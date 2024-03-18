@@ -12,8 +12,6 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/foreveread
 
-
-
 #spring.security.oauth2.client.registration.github.client-id=: GITHUB_CLIENT_ID
 #spring.security.oauth2.client.registration.github.client-secret= GITHUB_CLIENT_SECRET
 #spring.security.oauth2.client.registration.google.client-id=: GITHUB_CLIENT_ID

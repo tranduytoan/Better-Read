@@ -26,7 +26,7 @@ public class Book {
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must be less than 100 characters")
 
-//    @Indexed(direction = IndexDirection.ASCENDING)
+    @Indexed(direction = IndexDirection.ASCENDING)
     private String title;
 
     private List<Integer> covers;

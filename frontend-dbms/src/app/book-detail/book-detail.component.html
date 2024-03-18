@@ -1,6 +1,10 @@
 <div *ngIf="book">
-  <div *ngIf="book">
+  <div>
     <h2>{{ book.title }}</h2>
+<!--    <p> cover_id {{book.covers[0]}}</p>-->
+    <img class="book-cover"
+         [src]="book.covers?.[0] ? 'https://covers.openlibrary.org/b/id/' + book.covers[0] + '-L.jpg' : 'assets/images/book-cover-default.jpg'"
+         [alt]="'Book Cover for' + book.title">
     <p>Author: {{ book.author_keys }}</p>
     <p>Description:</p>
     <div>
@@ -17,7 +21,6 @@
       ea consectetur illum</em>. </p><blockquote cite="https://www.loremipzum.com">Eos quos enim est con
       sectetur eius aut placeat expedita eum corporis omnis vel sapiente provident et corrupti quaerat. </blockquote>
     </div>
-
   </div>
 </div>
 

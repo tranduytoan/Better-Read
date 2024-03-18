@@ -5,6 +5,7 @@ import dbmsforeveread.foreveread.response.BookListResponse;
 import dbmsforeveread.foreveread.service.BookRedisService;
 import dbmsforeveread.foreveread.service.BookService;
 import dbmsforeveread.foreveread.model.Book;
+//import dbmsforeveread.foreveread.service.IBookRedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,29 +38,67 @@ public class BookController {
 //            Page<Book> books = bookService.getBooks();
 //            return new ResponseEntity<>(books, HttpStatus.OK);
 //    }
+//    @GetMapping("")
+//    public ResponseEntity<BookListResponse> getBooks(
+//            @RequestParam(defaultValue = "atomic") String title,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "5") int size
+//    ) throws JsonProcessingException {
+//        int totalPages = 0;
+//
+//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+//
+//        logger.info(String.format("title = %s. page = %d, size = %d", title, page, size));
+//        List<Book> books = bookRedisService.getAllBooks(title, pageRequest);
+//
+//        if (books != null && !books.isEmpty()) {
+//            totalPages = 2;
+//        }
+//
+//        if (books == null) {
+//            Page<Book> bookPage = bookService.getBooks(title, pageRequest);
+//            totalPages = bookPage.getTotalPages();
+//            books = bookPage.getContent();
+//            bookRedisService.saveAllBooks(books, title, pageRequest);
+//        }
+//
+//        return ResponseEntity.ok(
+//                BookListResponse.builder()
+//                        .books(books)
+//                        .totalPages(totalPages)
+//                        .build()
+//        );
+//    }
+
     @GetMapping("")
     public ResponseEntity<BookListResponse> getBooks(
-            @RequestParam(defaultValue = "atomic") String title,
+            @RequestParam(defaultValue = "go") String title,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) throws JsonProcessingException {
-        int totalPages = 0;
+//        page = page - 1;
+        long startTime = System.currentTimeMillis();
+        logger.info("Start getBooks: title={}, page={}, size={}", title, page, size);
+        int totalPages = 20;
 
-        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+//        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("title"));
 
-        logger.info(String.format("title = %s. page = %d, size = %d", title, page, size));
         List<Book> books = bookRedisService.getAllBooks(title, pageRequest);
-
-        if (books != null && !books.isEmpty()) {
-            totalPages = 2;
-        }
-
         if (books == null) {
+            logger.info("No cache for title={}, continue using database", title);
             Page<Book> bookPage = bookService.getBooks(title, pageRequest);
             totalPages = bookPage.getTotalPages();
             books = bookPage.getContent();
-            bookRedisService.saveAllBooks(books, title, pageRequest);
+            bookRedisService.saveBooksAsync(books, title, pageRequest);
+            logger.info("Db query completed and cached: title={}", title);
+
+        }else {
+            logger.info("Cache hit for title={}, page={}, size={}", title, page, size);
         }
+
+        long endTime = System.currentTimeMillis();
+        logger.info("completed getbooks in {} ms", endTime - startTime);
 
         return ResponseEntity.ok(
                 BookListResponse.builder()
@@ -97,10 +136,10 @@ public class BookController {
 //        }
 //    }
 
-    @GetMapping("/search")
-    public List<Book> search(@RequestParam(value = "searchText") String searchText) {
-        return bookService.search(searchText);
-    }
+//    @GetMapping("/search")
+//    public List<Book> search(@RequestParam(value = "searchText") String searchText) {
+//        return bookService.search(searchText);
+//    }
 
     @PostMapping
     public ResponseEntity<Book> save(@RequestBody Book book) {

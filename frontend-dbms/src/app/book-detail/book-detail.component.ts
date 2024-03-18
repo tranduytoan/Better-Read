@@ -17,7 +17,7 @@ export class BookDetailComponent implements OnInit{
     ) { }
     ngOnInit(): void {
       this.getBookDetail();
-      console.log('BookDetailComponent initialized');
+      // console.log('BookDetailComponent initialized');
     }
 
    // getBookDetail() {
@@ -35,7 +35,7 @@ export class BookDetailComponent implements OnInit{
     if (id) {
       this.bookService.getBookDetail(id).subscribe({
         next: (response) => {
-          console.log('Book data:', response); // Detailed logging
+          console.log('Book data:', response);
           this.book = response;
         },
         error: (error) => console.error('There was an error', error),

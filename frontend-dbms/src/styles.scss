@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
-a {
-  text-decoration: none;
-
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+body, button, input, textarea, select {
+  font-family: 'Open Sans', sans-serif;
 }
