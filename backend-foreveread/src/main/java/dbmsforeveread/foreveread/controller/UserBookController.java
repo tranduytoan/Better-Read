@@ -5,13 +5,14 @@ import dbmsforeveread.foreveread.service.UserBookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/userBooks")
+@RequestMapping("/userbooks")
 public class UserBookController {
 
     @Autowired
@@ -32,9 +33,10 @@ public class UserBookController {
         userBookService.removeBookFromList(bookId, userBook.getUserId());
     }
 
-    @GetMapping()
-    public List<UserBook> getAllUserBooks() {
-        return userBookService.getAllUserBooks();
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<UserBook>> getAllUserBooks(@PathVariable String userId) {
+        return userBookService.getAllUserBooks(userId);
     }
 
     @GetMapping("/want-to-read/{userId}")

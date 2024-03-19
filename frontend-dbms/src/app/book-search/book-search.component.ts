@@ -17,7 +17,7 @@ export class BookSearchComponent  implements OnInit{
   currentPage: number = 1;
   searchQuery: string = '';
   pageSize = 12;
-
+  userId: string = '1234';
 
   constructor(private bookService: BookService, private scrollService: ScrollService) { }
   ngOnInit(): void {

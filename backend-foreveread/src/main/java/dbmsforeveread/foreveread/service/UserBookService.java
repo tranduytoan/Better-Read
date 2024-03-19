@@ -4,6 +4,7 @@ import dbmsforeveread.foreveread.model.UserBook;
 import dbmsforeveread.foreveread.repository.UserBookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -53,8 +54,9 @@ public class UserBookService {
         return userBookRepository.findByUserIdAndStatus(userId, String.valueOf(UserBook.BookStatus.READ));
     }
 
-    public List<UserBook> getAllUserBooks() {
-        return userBookRepository.findAll();
+    public ResponseEntity<List<UserBook>> getAllUserBooks(String userId) {
+        List<UserBook> userBooks = userBookRepository.findByUserId(userId);
+        return ResponseEntity.ok(userBooks);
     }
     public List<UserBook> getBooksByUserAndStatus(String userId, String status) {
         return userBookRepository.findByUserIdAndStatus(userId, status);

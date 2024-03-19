@@ -21,12 +21,14 @@ import java.util.List;
 @Document(collection = "books")
 public class Book {
     @Id
+    @Indexed
     private String id;
 
     @NotBlank(message = "Title is required")
     @Size(max = 100, message = "Title must be less than 100 characters")
 
-    @Indexed(direction = IndexDirection.ASCENDING)
+//    @Indexed(direction = IndexDirection.ASCENDING)
+    @Indexed
     private String title;
 
     private List<Integer> covers;

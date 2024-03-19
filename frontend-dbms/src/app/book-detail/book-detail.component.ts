@@ -38,7 +38,7 @@ export class BookDetailComponent implements OnInit{
           console.log('Book data:', response);
           this.book = response;
         },
-        error: (error) => console.error('There was an error', error),
+        error: (error) => console.error('There was an error on getting book details', error),
       });
     }
   }
