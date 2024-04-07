@@ -99,7 +99,7 @@ public class CartController {
     private CartDTO mapCartToDTO(Cart cart) {
         CartDTO cartDTO = new CartDTO();
         cartDTO.setId(cart.getId());
-        cartDTO.setUserId(cart.getUser().getId());
+        cartDTO.setUser(cart.getUser());
         cartDTO.setCreatedAt(cart.getCreatedAt());
         cartDTO.setCartItems(mapCartItemsToDTO(cart.getCartItems()));
         return cartDTO;
