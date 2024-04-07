@@ -2,6 +2,8 @@
 #spring.data.mongodb.uri=mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_CLUSTER}
 #spring.data.mongodb.uri=mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_CLUSTER}.mongodb.net/${env.MONGO_DATABASE}?retryWrites=true&w=majority&readPreference=secondaryPreferred
 spring:
+#  elasticsearch:
+#    uris: https://localhost:9200
   cache:
     type: redis
   data:
@@ -11,7 +13,23 @@ spring:
       use-redis-cache: true
     mongodb:
       uri: mongodb://localhost:27017/foreveread
+    elasticsearch:
+      repositories:
+        enabled: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/better_read
+    username: root
+    password: mtm172004
+  jpa:
+    hibernate: ddl-auto=update
+logging:
+  level:
+    dbmsforeveread:
+      foreveread: DEBUG
 
+#xpack:
+#  security:
+#    enabled: false
 #spring.security.oauth2.client.registration.github.client-id=: GITHUB_CLIENT_ID
 #spring.security.oauth2.client.registration.github.client-secret= GITHUB_CLIENT_SECRET
 #spring.security.oauth2.client.registration.google.client-id=: GITHUB_CLIENT_ID

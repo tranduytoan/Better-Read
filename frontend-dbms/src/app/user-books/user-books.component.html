@@ -1,7 +1,0 @@
-<p> My Books List</p>
-<div *ngFor="let book of userBooks">
-  <div>{{ book.title }} - Status: {{ book.status }}</div>
-  <button (click)="markAsRead(book.id)">Mark as Read</button>
-  <button (click)="removeBook(book.id)">Remove</button>
-</div>
-

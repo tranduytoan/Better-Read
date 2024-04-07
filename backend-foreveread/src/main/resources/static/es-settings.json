@@ -1,0 +1,40 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "custom_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "asciifolding"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "custom_analyzer"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "custom_analyzer"
+      },
+      "language": {
+        "type": "keyword"
+      },
+      "pages": {
+        "type": "integer"
+      },
+      "price": {
+        "type": "double"
+      },
+      "stockQuantity": {
+        "type": "integer"
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableCaching
-@EnableAsync
+//@EnableAsync
 public class ForevereadApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ForevereadApplication.class, args);
