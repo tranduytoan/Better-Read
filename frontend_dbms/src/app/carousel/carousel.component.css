@@ -1,0 +1,21 @@
+.carousel {
+  position: relative;
+  max-height: 500px;
+}
+
+.carousel-inner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.carousel-item {
+  position: relative;
+  display: none;
+  width: 100%;
+  transition: opacity 0.6s ease;
+}
+
+.carousel-item.active {
+  display: block;
+}

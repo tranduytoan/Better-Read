@@ -1,0 +1,16 @@
+<div *ngIf="searchResults.length > 0">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div *ngFor="let book of searchResults" class="bg-white rounded-lg shadow p-4">
+      <h2 class="text-xl font-bold mb-2 cursor-pointer" (click)="goToBookDetail(book.id)">{{ book.title }}</h2>
+      <p class="text-gray-600">{{ book.description }}</p>
+      <p class="text-gray-500 mt-2">Price: {{ book.price | currency }}</p>
+    </div>
+  </div>
+
+  <app-pagination class="mt-8 flex justify-center"
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    [maxVisiblePages]="maxVisiblePages"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
+</div>

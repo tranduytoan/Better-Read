@@ -1,0 +1,13 @@
+/* search.component.css */
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.focus\:ring-2:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
