@@ -18,8 +18,6 @@ import { RegistrationComponent } from './registration/registration.component';
 import { SearchComponent } from './features/search/search.component';
 import { MainContentComponent } from './main-content/main-content.component';
 import { CarouselComponent } from './carousel/carousel.component';
-import { LandingPageComponent } from './landingPage/landing-page.component';
-
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { CartComponent } from './cart/cart.component';
@@ -42,7 +40,6 @@ export function tokenGetter() {
     SearchComponent,
     MainContentComponent,
     CarouselComponent,
-    LandingPageComponent,
     CartComponent,
 
   ],
