@@ -19,6 +19,8 @@ import { SearchComponent } from './features/search/search.component';
 import { MainContentComponent } from './main-content/main-content.component';
 import { CarouselComponent } from './carousel/carousel.component';
 import { LandingPageComponent } from './landingPage/landing-page.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { TokenInterceptor } from './services/tokenInterceptor.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
@@ -61,7 +63,13 @@ export function tokenGetter() {
       }
     })
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

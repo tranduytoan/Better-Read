@@ -1,17 +1,19 @@
 import { Component } from '@angular/core';
 import {Router} from "@angular/router";
+import {OnInit} from "@angular/core";
+import {AuthService} from "./services/auth.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   title = 'BetterRead';
   searchResults: any[] = [];
   isLandingPage: boolean = true;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   onSearchResults(results: any[]) {
     this.searchResults = results;
@@ -23,5 +25,9 @@ export class AppComponent {
   isAuthPage(): boolean {
     const currentUrl = this.router.url;
     return currentUrl === '/login' || currentUrl === '/signup' || currentUrl === '/register';
+  }
+
+  ngOnInit(): void {
+    this.authService.isAuthenticated();
   }
 }
