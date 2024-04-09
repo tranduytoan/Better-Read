@@ -39,8 +39,31 @@ export class HeaderComponent implements OnInit{
   }
 
   logout(): void {
-    this.authService.logout();
-    this.showDropdown = false;
+    this.authService.logout().subscribe({
+      next: (response) => {
+        console.log('logout sucessful:', response);
+        this.authService.clearToken();
+        this.showDropdown = false;
+        window.location.reload()
+      },
+      error: (error) => {
+        console.error('logout error:', error);
+      }
+    });
+  }
+
+  logoutAll(): void {
+    this.authService.logoutAll().subscribe({
+      next: (response) => {
+        console.log('logoutAll sucessful:', response);
+        this.authService.clearToken();
+        this.showDropdown = false;
+        window.location.reload()
+      },
+      error: (error) => {
+        console.error('logoutAll error:', error);
+      }
+    });
   }
 
   onSearchTriggered(searchQuery: string) {
