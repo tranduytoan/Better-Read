@@ -1,27 +1,23 @@
 import { NgModule } from '@angular/core';
-import {FormsModule} from "@angular/forms";
+import { FormsModule } from "@angular/forms";
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './header/header.component';
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
-import { PaginationComponent } from './pagination/pagination.component';
-import { BookDetailComponent } from './features/book-detail/book-detail.component';
-import { FooterComponent } from './footer/footer.component';
-import { LoginComponent } from './login/login.component';
-import { SignUpComponent } from './sign-up/sign-up.component';
-import {JwtModule} from "@auth0/angular-jwt";
+import { HttpClientModule } from "@angular/common/http";
+import { JwtModule } from "@auth0/angular-jwt";
 import { HomeComponent } from './home/home.component';
-import { CatergoryListComponent } from './category-list/catergory-list.component';
-import { RegistrationComponent } from './registration/registration.component';
 import { SearchComponent } from './features/search/search.component';
 import { MainContentComponent } from './main-content/main-content.component';
-import { CarouselComponent } from './carousel/carousel.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
-import { CartComponent } from './cart/cart.component';
-import { TokenInterceptor } from './services/tokenInterceptor.service';
+import { CartComponent } from './features/cart/cart.component';
+import { CoreModule } from './core/core.module';
+import { SharedModule } from './shared/shared.module';
+import { BookModule } from './features/book/book.module';
+import { UserModule } from './features/user/user.module';
+// import { CategoryModule } from './features/category/category.module';
+
 export function tokenGetter() {
   return localStorage.getItem('access_token');
 }
@@ -29,20 +25,9 @@ export function tokenGetter() {
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    PaginationComponent,
-    BookDetailComponent,
-    FooterComponent,
-    LoginComponent,
-    SignUpComponent,
     HomeComponent,
-    CatergoryListComponent,
-    RegistrationComponent,
-    SearchComponent,
     MainContentComponent,
-    CarouselComponent,
-    CartComponent,
-
+    CartComponent
   ],
   imports: [
     BrowserModule,
@@ -57,15 +42,14 @@ export function tokenGetter() {
         allowedDomains: ['localhost:8080'],
         disallowedRoutes: []
       }
-    })
+    }),
+    CoreModule,
+    SharedModule,
+    BookModule,
+    UserModule,
+    // CategoryModule
   ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true
-    }
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

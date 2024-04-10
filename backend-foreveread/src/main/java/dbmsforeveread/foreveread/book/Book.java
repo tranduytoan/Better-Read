@@ -1,5 +1,6 @@
 package dbmsforeveread.foreveread.book;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dbmsforeveread.foreveread.author.Author;
 import dbmsforeveread.foreveread.category.Category;
 import dbmsforeveread.foreveread.inventory.Inventory;
@@ -36,14 +37,20 @@ public class Book {
     @JoinTable(name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id"))
+    @JsonIgnore
     private List<Author> authors;
 
     @ManyToMany
     @JoinTable(name = "book_category",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JsonIgnore
     private List<Category> categories;
 
     @OneToOne(mappedBy = "book")
+    @JsonIgnore
     private Inventory inventory;
+
+    @Transient
+    private Double avgRating;
 }

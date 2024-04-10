@@ -3,17 +3,19 @@ package dbmsforeveread.foreveread.cart;
 import dbmsforeveread.foreveread.book.Book;
 import dbmsforeveread.foreveread.book.BookService;
 import dbmsforeveread.foreveread.cartItem.CartItem;
+import dbmsforeveread.foreveread.cartItem.CartItemDTO;
 import dbmsforeveread.foreveread.cartItem.CartItemRepository;
+import dbmsforeveread.foreveread.exceptions.BookNotFoundException;
 import dbmsforeveread.foreveread.exceptions.InsufficientInventoryException;
 import dbmsforeveread.foreveread.inventory.Inventory;
 import dbmsforeveread.foreveread.inventory.InventoryRepository;
 import dbmsforeveread.foreveread.user.User;
 import dbmsforeveread.foreveread.user.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,13 +31,54 @@ public class CartService {
     @Transactional(readOnly = true)
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
-                .orElseGet(() -> createNewCart(userId));
+                .orElseThrow(() -> new BookNotFoundException("Cart not found for user: " + userId));
     }
 
+    @Transactional(readOnly = true)
+    public CartDTO getCartDTOByUserId(Long userId) {
+        Cart cart = getCartByUserId(userId);
+        return mapCartToDTO(cart);
+    }
+
+    private CartDTO mapCartToDTO(Cart cart) {
+        return CartDTO.builder()
+                .id(cart.getId())
+//                .user((cart.getUser()))
+//                .createdAt(cart.getCreatedAt())
+                .cartItems(mapCartItemsToDTO(cart.getCartItems()))
+                .totalItems(calculateTotalItems(cart))
+                .totalPrice(calculateCartTotal(cart))
+                .build();
+    }
+
+    private List<CartItemDTO> mapCartItemsToDTO(List<CartItem> cartItems) {
+        return cartItems.stream()
+                .map(item -> CartItemDTO.builder()
+                        .bookId(item.getBook().getId())
+                        .bookImageUrl(item.getBook().getImageUrl())
+                        .bookTitle(item.getBook().getTitle())
+                        .price(item.getBook().getPrice())
+                        .quantity(item.getQuantity())
+                        .total(item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                        .build())
+                .toList();
+    }
+
+    private int calculateTotalItems(Cart cart) {
+        return cart.getCartItems().stream()
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+    }
+
+    private BigDecimal calculateCartTotal(Cart cart) {
+        return cart.getCartItems().stream()
+                .map(item -> item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
     @Transactional
     public Cart createNewCart(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new BookNotFoundException("User not found"));
 
         Cart cart = new Cart();
         cart.setUser(user);
@@ -44,9 +87,11 @@ public class CartService {
 
     @Transactional
     public Cart addToCart(Long bookId, Long userId, int quantity) {
-        Cart cart = getCartByUserId(userId);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseGet(() -> createNewCart(userId));
+
         Inventory inventory = inventoryRepository.findByBookId(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found in inventory"));
+                .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
 
         if (inventory.getQuantity() < quantity) {
             throw new InsufficientInventoryException("Insufficient inventory for the requested quantity");
@@ -66,7 +111,6 @@ public class CartService {
             cartItem.setCart(cart);
             cartItem.setBook(book);
             cartItem.setQuantity(quantity);
-//            cart.getCartItems().add(cartItem);
             cart.addCartItem(cartItem);
         }
 
@@ -80,10 +124,10 @@ public class CartService {
     public Cart updateQuantity(Long bookId, Long userId, int quantity) {
         Cart cart = getCartByUserId(userId);
         CartItem cartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found"));
+                .orElseThrow(() -> new BookNotFoundException("Cart item not found"));
 
         Inventory inventory = inventoryRepository.findByBookId(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found in inventory"));
+                .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
 
         int quantityDifference = quantity - cartItem.getQuantity();
         validateInventoryAvailability(inventory, quantityDifference);
@@ -100,13 +144,13 @@ public class CartService {
     public Cart removeFromCart(Long bookId, Long userId) {
         Cart cart = getCartByUserId(userId);
         CartItem cartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found"));
+                .orElseThrow(() -> new BookNotFoundException("Cart item not found"));
 
         cart.getCartItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
 
         Inventory inventory = inventoryRepository.findByBookId(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found in inventory"));
+                .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
 
         updateInventoryQuantity(inventory, cartItem.getQuantity());
 
@@ -120,7 +164,7 @@ public class CartService {
 
         for (CartItem cartItem : cartItems) {
             Inventory inventory = inventoryRepository.findByBookId(cartItem.getBook().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Book not found in inventory"));
+                    .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
 
             updateInventoryQuantity(inventory, cartItem.getQuantity());
         }

@@ -24,8 +24,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/better_read
     username: root
-    password: 1111
-#    password: mtm172004
+    password: ${env.MYSQL_PASSWORD}
   jpa:
     hibernate: ddl-auto=update
 logging:
