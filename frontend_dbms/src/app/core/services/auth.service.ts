@@ -27,14 +27,14 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          this.saveToken(response as TokenDTO)
-          console.log('login response:', response);
-          console.log('userId:', this.getUserId());
-          console.log('accessToken:', this.getAccessToken());
+          this.saveToken(response as TokenDTO);
+          // console.log('login response:', response);
+          // console.log('userId:', this.getUserId());
+          // console.log('accessToken:', this.getAccessToken());
           console.log('refreshToken:', this.getRefreshToken());
           this.isLoggedInSubject.next(true);
           this.userService.setUserId(+response.userId);
-          console.log('isLoggedIn:', this.isLoggedInSubject.value);
+          // console.log('isLoggedIn:', this.isLoggedInSubject.value);
         })
       );
   }
@@ -47,13 +47,20 @@ export class AuthService {
     });
   }
 
-  logout() {
-    // localStorage.removeItem('access_token');
+  logout(): Observable<TokenDTO> {
+    // console.log('logout');
     this.isLoggedInSubject.next(false);
     this.userService.clearUserId();
     let refreshToken = this.getRefreshToken();
-    this.clearToken();
-    return this.http.post(`${this.apiUrl}/logout`, {refreshToken});
+    return this.http.post<TokenDTO>(`${this.apiUrl}/logout`, {refreshToken});
+  }
+
+  logoutAll(): Observable<TokenDTO> {
+    // console.log('logoutAll');
+    this.isLoggedInSubject.next(false);
+    this.userService.clearUserId();
+    let refreshToken = this.getRefreshToken();
+    return this.http.post<TokenDTO>(`${this.apiUrl}/logout-all`, {refreshToken});
   }
 
   // get new access token
@@ -79,12 +86,18 @@ export class AuthService {
   isAuthenticated() {
     const token = localStorage.getItem('refresh_token');
     console.log('refresh token:', token);
-    // return !this.jwtHelper.isTokenExpired(token);
-    if (!this.jwtHelper.isTokenExpired(token)) {
-      this.isLoggedInSubject.next(true);
-      return true;
-    } else {
+    try {
+      if (this.jwtHelper.isTokenExpired(token)) {
+        this.isLoggedInSubject.next(false);
+        return false;
+      } else {
+        this.isLoggedInSubject.next(true);
+        return true;
+      }
+    } catch (error) { //fix token in local storage is not jwt token
       this.isLoggedInSubject.next(false);
+      this.userService.clearUserId();
+      this.clearToken();
       return false;
     }
   }
@@ -102,7 +115,7 @@ export class AuthService {
     localStorage.removeItem('user_id');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    console.log('Token cleared');
+    // console.log('Token cleared');
   }
 
   getUserId(): string {
