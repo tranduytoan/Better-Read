@@ -38,6 +38,7 @@
         <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-xl" *ngIf="showDropdown">
           <a href="/profile" class="block px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-t-md">Profile</a>
           <button class="block w-full text-left px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-b-md" (click)="logout()">Logout</button>
+          <button class="block w-full text-left px-4 py-3 text-gray-800 hover:bg-gray-100 rounded-b-md" (click)="logoutAll()">Logout from all device</button>
         </div>
       </div>
       <div class="ml-8" *ngIf="!isLoggedIn">

@@ -28,6 +28,7 @@ export class AppComponent implements OnInit{
   }
 
   ngOnInit(): void {
+    console.log('Foreveread App started!');
     this.authService.isAuthenticated();
   }
 }
