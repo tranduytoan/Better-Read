@@ -28,13 +28,13 @@ export class AuthService {
       .pipe(
         tap((response) => {
           this.saveToken(response as TokenDTO);
-          console.log('login response:', response);
-          console.log('userId:', this.getUserId());
-          console.log('accessToken:', this.getAccessToken());
-          console.log('refreshToken:', this.getRefreshToken());
+          // console.log('login response:', response);
+          // console.log('userId:', this.getUserId());
+          // console.log('accessToken:', this.getAccessToken());
+          // console.log('refreshToken:', this.getRefreshToken());
           this.isLoggedInSubject.next(true);
           this.userService.setUserId(+response.userId);
-          console.log('isLoggedIn:', this.isLoggedInSubject.value);
+          // console.log('isLoggedIn:', this.isLoggedInSubject.value);
         })
       );
   }
@@ -48,7 +48,7 @@ export class AuthService {
   }
 
   logout(): Observable<TokenDTO> {
-    console.log('logout');
+    // console.log('logout');
     this.isLoggedInSubject.next(false);
     this.userService.clearUserId();
     let refreshToken = this.getRefreshToken();
@@ -56,7 +56,7 @@ export class AuthService {
   }
 
   logoutAll(): Observable<TokenDTO> {
-    console.log('logoutAll');
+    // console.log('logoutAll');
     this.isLoggedInSubject.next(false);
     this.userService.clearUserId();
     let refreshToken = this.getRefreshToken();
@@ -114,7 +114,7 @@ export class AuthService {
     localStorage.removeItem('user_id');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    console.log('Token cleared');
+    // console.log('Token cleared');
   }
 
   getUserId(): string {

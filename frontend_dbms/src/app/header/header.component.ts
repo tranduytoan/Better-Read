@@ -41,7 +41,7 @@ export class HeaderComponent implements OnInit{
   logout(): void {
     this.authService.logout().subscribe({
       next: (response) => {
-        console.log('logout sucessful:', response);
+        // console.log('logout sucessful:', response);
         this.authService.clearToken();
         this.showDropdown = false;
         window.location.reload()
@@ -55,7 +55,7 @@ export class HeaderComponent implements OnInit{
   logoutAll(): void {
     this.authService.logoutAll().subscribe({
       next: (response) => {
-        console.log('logoutAll sucessful:', response);
+        // console.log('logoutAll sucessful:', response);
         this.authService.clearToken();
         this.showDropdown = false;
         window.location.reload()

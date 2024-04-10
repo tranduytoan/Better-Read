@@ -12,14 +12,9 @@ export class TokenInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log('intercept:');
-    console.log(this.authService.isAuthenticated());
-    // if (!this.authService.isAuthenticated
-    //   && !request.url.includes('userbooks')
-    //   && !request.url.includes('profile')){
-    //   this.router.navigate(['/login']);
-    //   throwError(() => new HttpErrorResponse({status: 401}));
-    // }
+    // console.log('intercept:');
+    // console.log(this.authService.isAuthenticated());
+
     // Add access token to the Authorization header if it exists
     // request = this.addToken(request);  //no more needed because we are using jwtModule config
 
@@ -36,11 +31,11 @@ export class TokenInterceptor implements HttpInterceptor {
           return this.authService.accessToken().pipe(
             switchMap((tokenDto: TokenDTO) => {
               if (!tokenDto.accessToken) {
-                setTimeout(() => console.log('#intercept can get new access token'), 1000);
+                // setTimeout(() => console.log('#intercept can get new access token'), 1000);
                 return throwError(() => error);
               }
               this.authService.saveToken(tokenDto);
-              setTimeout(() => console.log('#intercept have new access token'), 1000);
+              // setTimeout(() => console.log('#intercept have new access token'), 1000);
               request = this.addToken(request);   //because jwtModule dont add token to request below
               return next.handle(request);
             }),
