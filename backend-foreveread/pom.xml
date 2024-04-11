@@ -135,6 +135,11 @@
 			<artifactId>spring-security-web</artifactId>
 			<version>6.1.8</version>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.json</groupId>
+			<artifactId>jakarta.json-api</artifactId>
+			<version>2.1.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
