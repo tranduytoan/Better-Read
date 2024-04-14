@@ -20,10 +20,16 @@ public class BookController {
     @Autowired
     private BookService bookService;
 
+    @Autowired
+    private BookRedisService bookRedisServiceImpli;
     @GetMapping("/{id}")
     public ResponseEntity<BookDTO> getBookDetails(@PathVariable Long id) {
-        BookDTO bookDTO = bookService.getBookDetails(id);
-        return ResponseEntity.ok(bookDTO);
+        BookDTO book = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (book == null) {
+            book = bookService.getBookDetails(id);
+            bookRedisServiceImpli.addBookToRedis(book);
+        }
+        return ResponseEntity.ok(book);
     }
 
     @PostMapping
@@ -43,6 +49,7 @@ public class BookController {
         bookService.deleteBook(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/search")
     public ResponseEntity<Page<BookSearchResultDTO>> searchBooks(
             @RequestParam("query") String query,
