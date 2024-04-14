@@ -24,4 +24,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .roles(user.getRole().name())
                 .build();
     }
+
+    public User findById(String id) {
+        return userRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
+    }
 }

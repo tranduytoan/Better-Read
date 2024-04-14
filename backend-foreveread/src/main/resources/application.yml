@@ -1,6 +1,11 @@
 #spring.data.mongodb.database=${env.MONGO_DATABASE}
 #spring.data.mongodb.uri=mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_CLUSTER}
 #spring.data.mongodb.uri=mongodb+srv://${env.MONGO_USERNAME}:${env.MONGO_PASSWORD}@${env.MONGO_CLUSTER}.mongodb.net/${env.MONGO_DATABASE}?retryWrites=true&w=majority&readPreference=secondaryPreferred
+accessTokenExpirationMinutes: 5
+refreshTokenExpirationDays: 30
+accessTokenSecret: 12345
+refreshTokenSecret: 54321
+
 spring:
 #  elasticsearch:
 #    uris: https://localhost:9200
@@ -20,6 +25,11 @@ spring:
     url: jdbc:mysql://localhost:3306/better_read
     username: root
     password: 123456
+#<<<<<<< HEAD
+#    password: 123456
+#=======
+#    password: ${env.MYSQL_PASSWORD}
+#>>>>>>> 048be537d66767d20a1bae68f5d4c64c73d3da58
   jpa:
     hibernate: ddl-auto=update
 logging:

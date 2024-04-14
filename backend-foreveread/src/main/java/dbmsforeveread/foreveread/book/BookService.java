@@ -20,7 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,17 +63,35 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    public Page<BookSearchResultDTO> searchBooks(String query, int page, int size) {
+//    public Page<BookSearchResultDTO> searchBooks(String query, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<Book> books = bookRepository.findByTitleContainingIgnoreCase(query, pageable);
+//        return books.map(this::convertToSearchResultDTO);
+//    }
+    public Page<BookSearchResultDTO> searchBooks(BookSearchRequest request) {
+        String query = request.getQuery();
+        int page = request.getPage();
+        int size = request.getSize();
+        String priceRange = request.getPrice();
+//        List<Category> categories = request.getCategory();
+
+        BigDecimal minPrice = null;
+        BigDecimal maxPrice = null;
+        if (priceRange != null && !priceRange.isEmpty()) {
+            String[] prices = priceRange.split("-");
+            minPrice = new BigDecimal(prices[0]);
+            maxPrice = prices.length > 1 ? new BigDecimal(prices[1]) : null;
+        }
+
         Pageable pageable = PageRequest.of(page, size);
-        Page<Book> books = bookRepository.findByTitleContainingIgnoreCase(query, pageable);
-        return books.map(this::convertToSearchResultDTO);
+        Page<Book> bookPage = bookRepository.searchBooks(query, minPrice, maxPrice, pageable);
+        return bookPage.map(this::convertToSearchResultDTO);
     }
 
     private BookSearchResultDTO convertToSearchResultDTO(Book book) {
         BookSearchResultDTO dto = new BookSearchResultDTO();
         dto.setId(book.getId());
         dto.setTitle(book.getTitle());
-//        dto.setAuthor(book.getAuthors().stream().map(Author::getName).collect(Collectors.joining(", ")));
         dto.setPrice(book.getPrice());
         dto.setImageUrl(book.getImageUrl());
         return dto;
@@ -137,5 +157,14 @@ public class BookService {
         InventoryDTO inventoryDTO = new InventoryDTO();
         inventoryDTO.setQuantity(inventory.getQuantity());
         return inventoryDTO;
+    }
+
+    public List<Category> getBookCategories(Long bookId) {
+        Optional<Book> bookOptional = bookRepository.findById(bookId);
+        if (bookOptional.isPresent()) {
+            Book book = bookOptional.get();
+            return book.getCategories();
+        }
+        return Collections.emptyList();
     }
 }

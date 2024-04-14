@@ -10,7 +10,7 @@ import java.util.List;
 public class BookSearchResultDTO {
     private Long id;
     private String title;
-    private List<Author> author;
+//    private List<Author> author;
     private BigDecimal price;
     private String imageUrl;
 }

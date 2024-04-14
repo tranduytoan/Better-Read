@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,11 +16,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartDTO {
     private Long id;
-    private User user;
+//    private User user;
     private LocalDateTime createdAt;
     private List<CartItemDTO> cartItems;
     private int totalItems;

@@ -2,6 +2,7 @@ package dbmsforeveread.foreveread.book;
 
 import dbmsforeveread.foreveread.cart.AddToCartDTO;
 import dbmsforeveread.foreveread.cart.CartService;
+import dbmsforeveread.foreveread.category.Category;
 import dbmsforeveread.foreveread.exceptions.InsufficientInventoryException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/book")
@@ -51,13 +54,13 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<BookSearchResultDTO>> searchBooks(
-            @RequestParam("query") String query,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
-    ) {
-        Page<BookSearchResultDTO> searchResults = bookService.searchBooks(query, page, size);
-        return ResponseEntity.ok(searchResults);
+    public Page<BookSearchResultDTO> searchBooks(BookSearchRequest request) {
+        return bookService.searchBooks(request);
     }
 
+    @GetMapping("/{bookId}/categories")
+    public ResponseEntity<List<Category>> getBookCategories(@PathVariable Long bookId) {
+        List<Category> categories = bookService.getBookCategories(bookId);
+        return ResponseEntity.ok(categories);
+    }
 }

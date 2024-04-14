@@ -1,6 +1,4 @@
 import {Component, EventEmitter, Output} from '@angular/core';
-import {SearchService} from "../../services/search.service";
-import {ScrollService} from "../../services/scroll.service";
 import {Router} from "@angular/router";
 
 @Component({
