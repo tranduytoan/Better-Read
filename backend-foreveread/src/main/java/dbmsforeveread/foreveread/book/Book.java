@@ -51,6 +51,9 @@ public class Book {
     @JsonIgnore
     private Inventory inventory;
 
-    @Transient
-    private Double avgRating;
+//<<<<<<< HEAD
+//=======
+//    @Transient
+//    private Double avgRating;
+//>>>>>>> 048be537d66767d20a1bae68f5d4c64c73d3da58
 }
