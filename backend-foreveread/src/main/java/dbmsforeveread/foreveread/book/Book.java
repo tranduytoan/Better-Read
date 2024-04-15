@@ -8,7 +8,6 @@ import dbmsforeveread.foreveread.publisher.Publisher;
 import dbmsforeveread.foreveread.review.ReviewDocument;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
