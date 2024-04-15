@@ -19,13 +19,26 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-//    @Enumerated(EnumType.STRING)
-//    private OrderStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String shippingAddress;
     private String billingAddress;
     private BigDecimal totalAmount;
+
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

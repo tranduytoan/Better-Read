@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class BookDTO {
@@ -29,6 +30,6 @@ public class BookDTO {
     private BigDecimal price;
     private String imageUrl;
     private List<Long> authorIds;
-    private List<Long> categoryIds;
+    private Set<CategoryDTO> category;
     private InventoryDTO inventory;
 }

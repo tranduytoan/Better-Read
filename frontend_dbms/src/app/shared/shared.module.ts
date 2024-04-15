@@ -7,6 +7,9 @@ import { PaginationComponent } from './components/pagination/pagination.componen
 import {RouterLink} from "@angular/router";
 import {SearchComponent} from "../features/search/search.component";
 import {FormsModule} from "@angular/forms";
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import {MatDialogActions, MatDialogContent, MatDialogTitle} from "@angular/material/dialog";
+import {MatButton} from "@angular/material/button";
 
 @NgModule({
   declarations: [
@@ -14,12 +17,17 @@ import {FormsModule} from "@angular/forms";
     FooterComponent,
     HeaderComponent,
     PaginationComponent,
-    SearchComponent
+    SearchComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     CommonModule,
     RouterLink,
     FormsModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatButton,
   ],
   exports: [
     CarouselComponent,

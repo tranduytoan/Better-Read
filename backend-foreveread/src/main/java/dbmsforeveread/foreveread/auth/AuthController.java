@@ -27,10 +27,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-//    private final UserService userService;
-//    private final AuthenticationManager authenticationManager;
-//    private final JwtToken jwtToken;
-//    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     AuthenticationManager authenticationManager;
     @Autowired
     RefreshTokenRepository refreshTokenRepository;

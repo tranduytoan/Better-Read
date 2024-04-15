@@ -1,0 +1,40 @@
+<div class="container mx-auto mt-8">
+  <h2 class="text-3xl font-bold mb-6 text-center text-indigo-600">Reading Progress</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div *ngFor="let readingProgress of readingProgressList" class="bg-white rounded-lg shadow-lg overflow-hidden transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl">
+      <div class="relative">
+        <img
+          [src]="readingProgress.bookImageUrl"
+          alt="Book Cover"
+          class="w-full h-64 object-cover cursor-pointer"
+          (click)="goToBookDetail(readingProgress.bookId)"
+        >
+        <div class="absolute top-0 right-0 m-4">
+          <div class="relative">
+            <select
+              [(ngModel)]="readingProgress.progress"
+              (ngModelChange)="updateReadingProgress(readingProgress.bookId, readingProgress.progress)"
+              class="block appearance-none w-full bg-white border border-gray-300 hover:border-indigo-500 px-4 py-2 pr-8 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-600 transition duration-300 ease-in-out"
+            >
+              <option value="NOT_STARTED">Not Started</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
+              <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-6">
+        <h3 class="text-xl font-semibold mb-2 text-indigo-600 cursor-pointer" (click)="goToBookDetail(readingProgress.bookId)">
+          Book ID: {{ readingProgress.bookTitle }}
+        </h3>
+        <p class="mb-2 text-gray-600">Progress: {{ readingProgress.progress }}</p>
+      </div>
+    </div>
+  </div>
+</div>

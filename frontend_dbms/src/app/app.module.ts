@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
-import { FormsModule } from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from "@angular/common/http";
 import { JwtModule } from "@auth0/angular-jwt";
-import { HomeComponent } from './home/home.component';
-import { SearchComponent } from './features/search/search.component';
-import { MainContentComponent } from './main-content/main-content.component';
+import { HomeComponent } from './pages/home/home.component';
+import { MainContentComponent } from './pages/main-content/main-content.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { CartComponent } from './features/cart/cart.component';
@@ -16,6 +15,7 @@ import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 import { BookModule } from './features/book/book.module';
 import { UserModule } from './features/user/user.module';
+import { ReadingProgressListComponent } from './features/readingprogresslist/readingprogresslist.component';
 // import { CategoryModule } from './features/category/category.module';
 
 export function tokenGetter() {
@@ -27,7 +27,8 @@ export function tokenGetter() {
     AppComponent,
     HomeComponent,
     MainContentComponent,
-    CartComponent
+    CartComponent,
+    ReadingProgressListComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,9 +48,13 @@ export function tokenGetter() {
     SharedModule,
     BookModule,
     UserModule,
+    ReactiveFormsModule,
     // CategoryModule
   ],
   providers: [],
+  exports: [
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

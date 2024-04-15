@@ -1,0 +1,93 @@
+<!-- review.component.html -->
+<div class="mt-12 bg-gray-100 p-8 rounded-lg">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-2xl font-semibold">Reviews</h3>
+    <button (click)="openReviewForm()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Write a Review</button>
+  </div>
+  <div class="mb-8">
+    <div *ngFor="let review of reviews" class="bg-white rounded-lg shadow-md p-6 mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center">
+          <div>
+            <p class="font-semibold">{{ review.user?.username || 'Anonymous' }}</p>
+            <p class="text-gray-600 text-sm">{{ review.createdAt | date }}</p>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <svg *ngFor="let star of [].constructor(review.rating)" class="w-5 h-5 text-yellow-400 fill-current mr-1" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 1l2.928 5.984 6.546.952-4.737 4.599 1.118 6.465L10 15.332l-5.855 3.668 1.118-6.465L.526 7.936l6.546-.952z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-gray-700 line-clamp-3" [ngClass]="{'line-clamp-none': review.expanded}">{{ review.comment }}</p>
+      <button *ngIf="review.comment.length > 200" class="text-blue-500 mt-2 focus:outline-none" (click)="toggleReviewExpand(review)">
+        {{ review.expanded ? 'Read Less' : 'Read More' }}
+      </button>
+    </div>
+    <p *ngIf="reviews.length === 0" class="text-gray-600">No reviews yet.</p>
+  </div>
+
+  <div class="mt-12 bg-white p-8 rounded-lg shadow-md">
+    <div *ngIf="showReviewForm">
+      <h4 class="text-xl font-semibold mb-4">Write a Review</h4>
+      <form (ngSubmit)="submitReview()" class="space-y-4" [formGroup]="reviewForm">
+        <div>
+          <div>
+            <label for="rating-input" class="block text-gray-700 font-semibold mb-2">Rating</label>
+            <div class="flex items-center">
+              <ng-container *ngFor="let star of [1, 2, 3, 4, 5]; let i = index">
+                <svg class="w-6 h-6 cursor-pointer" [class.text-yellow-400]="hoverRating >= i + 1 || rating >= i + 1" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
+                     (click)="selectRating(i + 1)" (mouseenter)="onStarHover(i + 1)" (mouseleave)="onStarLeave()">
+                  <path d="M10 1l2.928 5.984 6.546.952-4.737 4.599 1.118 6.465L10 15.332l-5.855 3.668 1.118-6.465L.526 7.936l6.546-.952z"/>
+                </svg>
+              </ng-container>
+            </div>
+            <input type="hidden" id="rating-input" formControlName="rating">
+            <div *ngIf="reviewForm.get('rating')?.invalid && (reviewForm.get('rating')?.touched || reviewForm.get('rating')?.dirty)">
+              <p class="text-red-500" *ngIf="reviewForm.get('rating')?.errors?.['required']">Rating is required.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label for="comment" class="block text-gray-700 font-semibold mb-2">Comment</label>
+          <textarea id="comment" name="comment" formControlName="comment" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+          <div *ngIf="reviewForm.get('comment')?.invalid && (reviewForm.get('comment')?.dirty || reviewForm.get('comment')?.touched)">
+            <p *ngIf="reviewForm.get('comment')?.errors?.['required']" class="text-red-500 mt-1">Comment is required.</p>
+            <p *ngIf="reviewForm.get('comment')?.errors?.['minlength']" class="text-red-500 mt-1">Comment must be at least 10 characters long.</p>
+          </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Submit Review</button>
+          <button type="button" (click)="cancelReviewForm()" class="text-gray-600 hover:text-gray-800 font-semibold focus:outline-none">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-gray-600">Showing {{ (currentPage * pageSize) + 1 }} to {{ Math.min((currentPage + 1) * pageSize, reviews.length) }} of {{ reviews.length }} reviews</p>
+      </div>
+    </div>
+    <nav aria-label="Review pagination" class="mt-4">
+      <ul class="flex justify-center">
+        <li>
+          <button class="px-3 py-1 rounded" [disabled]="currentPage === 0" (click)="onPageChange(currentPage)">
+            Previous
+          </button>
+        </li>
+        <li *ngFor="let page of [].constructor(totalPages); let i = index">
+          <button class="px-3 py-1 rounded" [class.bg-blue-500]="currentPage === i" (click)="onPageChange(i + 1)">
+            {{ i + 1 }}
+          </button>
+        </li>
+        <li>
+          <button class="px-3 py-1 rounded" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 2)">
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>

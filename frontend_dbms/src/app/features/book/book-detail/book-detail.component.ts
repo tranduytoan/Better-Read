@@ -1,90 +1,3 @@
-// import {Component, OnInit} from '@angular/core';
-// import {Book} from "../../models/book";
-// import {BookService} from "../../services/book.service";
-// import {ActivatedRoute} from "@angular/router";
-// import {BookDetailDTO} from "../../models/book-detail-dto";
-// import {BorrowService} from "../../services/borrow.service";
-// import {AuthService} from "../../services/auth.service";
-// import {UserService} from "../../services/user.service";
-// import {UserBooksService} from "../../services/user-books.service";
-//
-// @Component({
-//   selector: 'app-book-detail',
-//   templateUrl: './book-detail.component.html',
-//   styleUrls: ['./book-detail.component.css']
-// })
-// export class BookDetailComponent implements OnInit{
-//   // book: BookDetailDTO | null = null;
-//   recommendedBooks: Book[] = [];
-//   book: any;
-//   bookId: string | null | undefined;
-//   userId: number | null | undefined;
-//   constructor(
-//     private route: ActivatedRoute,
-//     private bookService: BookService,
-//     public borrowService: BorrowService,
-//     private userService: UserService,
-//     private userBookService: UserBooksService
-//   ) { }
-//   ngOnInit(): void {
-//     const bookId = this.route.snapshot.paramMap.get('id');
-//     this.getBookDetail();
-//
-//     this.userService.userId$.subscribe(userId => {
-//       this.userId = userId;
-//     });
-//     // console.log('BookDetailComponent initialized');
-//   }
-//
-//   getBookDetail() {
-//     this.bookId = this.route.snapshot.paramMap.get('id');
-//     if (this.bookId) {
-//       this.bookService.getBookDetail(this.bookId).subscribe({
-//         next: (book) => {
-//           console.log('Book data:', book);
-//           this.book = book;
-//         },
-//         error: (error) => console.error(']Error fetching book detail', error),
-//       });
-//     }
-//   }
-//
-//   borrowBook(): void {
-//     if (this.book && this.book.id && this.userId) {
-//       this.borrowService.borrowBook(this.book.id, this.userId).subscribe(
-//         () => console.log('Book borrowed successfully'),
-//         error => console.error('Error borrowing book', error)
-//       );
-//     } else {
-//       console.error('Cannot book-list book: Book details or User ID is missing.');
-//     }
-//   }
-//
-//   getRecommendedBooks(bookId: number) {
-//     this.bookService.getRecommendedBooks(bookId).subscribe(
-//       (books) => {
-//         this.recommendedBooks = books;
-//       },
-//       (error) => {
-//         console.error('Error fetching recommended books:', error);
-//       }
-//     );
-//   }
-//   //
-//   addToBookself() {
-//     if (this.bookId && this.userId) {
-//       this.userBookService.addToReadingList(this.bookId, this.userId).subscribe(
-//         () => console.log("Book added to reading list successfully"),
-//         error => console.error("Error adding book to reading list", error)
-//       );
-//     } else {
-//       console.error("Book Id or userid is missing");
-//     }
-//   }
-// }
-//
-//
-
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BookDTO} from "../../../shared/models/bookDTO";
@@ -92,14 +5,31 @@ import {SearchService} from "../../../core/services/search.service";
 import {CartService} from "../../../core/services/cart.service";
 import {UserService} from "../../../core/services/user.service";
 import {ToastrService} from "ngx-toastr";
-
+import {ReadingProgressService} from "../../../core/services/readingprogress.service";
+import {ReadingProgress} from "../../../shared/models/readingprogress";
+import {animate, style, transition, trigger} from "@angular/animations";
+import {ReviewService} from "../../../core/services/review.service";
+import {Category} from "../../../shared/models/category";
+import {CategoryService} from "../../../core/services/category.service";
 @Component({
   selector: 'app-book-detail',
   templateUrl: './book-detail.component.html',
-  styleUrls: ['./book-detail.component.css']
+  styleUrls: ['./book-detail.component.css'],
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class BookDetailComponent implements OnInit {
   book!: BookDTO;
+  bookId: string | null = '';
   quantity: number = 1;
   userId!: number | null;
   expandedDescription: boolean = false;
@@ -109,15 +39,21 @@ export class BookDetailComponent implements OnInit {
     private searchService: SearchService,
     private cartService: CartService,
     private userService: UserService,
-    private toastr: ToastrService
-  ) { }
+    private toastr: ToastrService,
+    private readingprogressService: ReadingProgressService,
+    private reviewService: ReviewService,
+    private categoryService: CategoryService
+  ) {}
 
   ngOnInit(): void {
-    const bookId = this.route.snapshot.paramMap.get('id');
-    if (bookId) {
-      this.searchService.getBookDetails(bookId).subscribe(
+    this.bookId = this.route.snapshot.paramMap.get('id');
+    if (this.bookId) {
+      this.searchService.getBookDetails(this.bookId).subscribe(
         (book: BookDTO) => {
           this.book = book;
+          if (this.book.category && this.book.category.length > 0) {
+            this.loadCategoryHierarchy(this.book.category[0].id);
+          }
         },
         (error) => {
           console.error('Error fetching book details:', error);
@@ -131,6 +67,7 @@ export class BookDetailComponent implements OnInit {
       this.userId = userId;
     })
   }
+
 
   increaseQuantity() {
     if (this.book && this.book.inventory && this.quantity < this.book.inventory.quantity) {
@@ -160,11 +97,49 @@ export class BookDetailComponent implements OnInit {
       this.toastr.error('User ID is null or book details are missing. Cannot add book to cart.');
     }
   }
+
+  addToReadingProgress() {
+    if (this.userId !== null && this.book && this.book.id) {
+      const request: Partial<ReadingProgress> = {
+        userId: this.userId,
+        bookId: this.book.id,
+        progress: 'NOT_STARTED'
+      };
+
+      this.readingprogressService.addBookToReadingProgress(request).subscribe(
+        () => {
+          this.toastr.success('Book added to reading progress.');
+        },
+        (error: any) => {
+          console.error('Error adding book to reading progress:', error);
+          this.toastr.error('Failed to add book to reading progress.');
+        }
+      );
+    } else {
+      this.toastr.error('User ID is null or book details are missing. Cannot add book to reading progress.');
+    }
+  }
+
   onImageError(event: Event) {
     (event.target as HTMLImageElement).src = '/assets/images/book-cover-default.jpg';
   }
 
   toggleDescription() {
     this.expandedDescription = !this.expandedDescription;
+  }
+
+  protected readonly Math = Math;
+
+  categoryHierarchy: Category[] | undefined;
+
+  loadCategoryHierarchy(categoryId: number) {
+    this.categoryService.getCategoryHierarchy(categoryId).subscribe({
+      next: (categories) => {
+        this.categoryHierarchy = categories;
+      },
+      error: (error) => {
+        console.error('Failed to load category hierarchy', error);
+      }
+    });
   }
 }

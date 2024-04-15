@@ -27,6 +27,11 @@ spring:
     password: ${env.MYSQL_PASSWORD}
   jpa:
     hibernate: ddl-auto=update
+#  neo4j:
+#    uri: ${env.AURA_URI}
+#    authentication:
+#      username: ${env.AURA_USER}
+#      password: ${env.AURA_PASSWORD}
 logging:
   level:
     dbmsforeveread:

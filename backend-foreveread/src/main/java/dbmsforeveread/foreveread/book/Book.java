@@ -5,11 +5,14 @@ import dbmsforeveread.foreveread.author.Author;
 import dbmsforeveread.foreveread.category.Category;
 import dbmsforeveread.foreveread.inventory.Inventory;
 import dbmsforeveread.foreveread.publisher.Publisher;
+import dbmsforeveread.foreveread.review.ReviewDocument;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,7 +48,7 @@ public class Book {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     @JsonIgnore
-    private List<Category> categories;
+    private Set<Category> categories = new HashSet<>();
 
     @OneToOne(mappedBy = "book")
     @JsonIgnore
@@ -53,4 +56,7 @@ public class Book {
 
     @Transient
     private Double avgRating;
+
+    @Transient
+    private List<ReviewDocument> reviews;
 }

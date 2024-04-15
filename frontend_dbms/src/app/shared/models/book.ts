@@ -1,3 +1,6 @@
+import {Category} from "./category";
+import {List} from "postcss/lib/list";
+
 export interface Book {
   id: number;
   title: string;
@@ -10,6 +13,6 @@ export interface Book {
   price: number;
   imageUrl: string;
   authorIds: number[];
-  categoryIds: number[];
+  category: number[];
   // inventoryId: number;
 }
