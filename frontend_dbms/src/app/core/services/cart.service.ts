@@ -5,6 +5,7 @@ import {Cart} from "../../shared/models/cart";
 import {Book} from "../../shared/models/book";
 import {ToastrService} from "ngx-toastr";
 import {UserService} from "./user.service";
+import {Order} from "../../shared/models/order";
 
 @Injectable({
   providedIn: 'root'
@@ -99,5 +100,9 @@ export class CartService {
         }
       );
     }
+  }
+
+  checkout(): Observable<Order> {
+    return this.http.post<Order>(`${this.apiUrl}/checkout`, null);
   }
 }

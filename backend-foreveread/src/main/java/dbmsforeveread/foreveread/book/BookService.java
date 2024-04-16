@@ -4,6 +4,7 @@ import dbmsforeveread.foreveread.author.Author;
 import dbmsforeveread.foreveread.author.AuthorDTO;
 import dbmsforeveread.foreveread.category.Category;
 import dbmsforeveread.foreveread.category.CategoryDTO;
+import dbmsforeveread.foreveread.exceptions.ResourceNotFoundException;
 import dbmsforeveread.foreveread.inventory.Inventory;
 import dbmsforeveread.foreveread.inventory.InventoryDTO;
 import dbmsforeveread.foreveread.inventory.InventoryRepository;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -116,7 +117,7 @@ public class BookService {
         bookDTO.setPrice(book.getPrice());
         bookDTO.setImageUrl(book.getImageUrl());
 //        bookDTO.setAuthors(convertToAuthorDTOs(book.getAuthors()));
-//        bookDTO.setCategoryIds(convertToCategoryDTOs(book.getCategories()));
+        bookDTO.setCategory(convertToCategoryDTOs(book.getCategories()));
         bookDTO.setInventory(convertToInventoryDTO(book.getInventory()));
         return bookDTO;
     }
@@ -140,18 +141,21 @@ public class BookService {
         return authorDTO;
     }
 
-    private List<CategoryDTO> convertToCategoryDTOs(List<Category> categories) {
+    private Set<CategoryDTO> convertToCategoryDTOs(Set<Category> categories) {
         return categories.stream()
                 .map(this::convertToCategoryDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private CategoryDTO convertToCategoryDTO(Category category) {
         CategoryDTO categoryDTO = new CategoryDTO();
         categoryDTO.setId(category.getId());
         categoryDTO.setName(category.getName());
+        categoryDTO.setParentId(category.getParent() != null ? category.getParent().getId() : null);
         return categoryDTO;
     }
+
+
 
     private InventoryDTO convertToInventoryDTO(Inventory inventory) {
         InventoryDTO inventoryDTO = new InventoryDTO();
@@ -159,12 +163,12 @@ public class BookService {
         return inventoryDTO;
     }
 
-    public List<Category> getBookCategories(Long bookId) {
+    public Set<Category> getBookCategories(Long bookId) {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
         if (bookOptional.isPresent()) {
             Book book = bookOptional.get();
             return book.getCategories();
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 }

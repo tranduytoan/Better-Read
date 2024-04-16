@@ -34,6 +34,14 @@ public class CartService {
                 .orElseThrow(() -> new BookNotFoundException("Cart not found for user: " + userId));
     }
 
+    public Cart getCartByUser(User user) {
+        return cartRepository.findByUser(user)
+                .orElseGet(() -> {
+                    Cart cart = new Cart();
+                    cart.setUser(user);
+                    return cartRepository.save(cart);
+                });
+    }
     @Transactional(readOnly = true)
     public CartDTO getCartDTOByUserId(Long userId) {
         Cart cart = getCartByUserId(userId);
@@ -70,7 +78,7 @@ public class CartService {
                 .sum();
     }
 
-    private BigDecimal calculateCartTotal(Cart cart) {
+    public BigDecimal calculateCartTotal(Cart cart) {
         return cart.getCartItems().stream()
                 .map(item -> item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -86,27 +94,21 @@ public class CartService {
     }
 
     @Transactional
-    public Cart addToCart(Long bookId, Long userId, int quantity) {
+    public CartDTO addToCart(Long bookId, Long userId, int quantity) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> createNewCart(userId));
 
-        Inventory inventory = inventoryRepository.findByBookId(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
-
-        if (inventory.getQuantity() < quantity) {
-            throw new InsufficientInventoryException("Insufficient inventory for the requested quantity");
-        }
-
-        Optional<CartItem> optionalCartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId);
+        Optional<CartItem> optionalCartItem = cartItemRepository.findByCartIdAndBookIdWithInventory(cart.getId(), bookId);
         CartItem cartItem;
 
         if (optionalCartItem.isPresent()) {
             cartItem = optionalCartItem.get();
             int newQuantity = cartItem.getQuantity() + quantity;
-            validateInventoryAvailability(inventory, newQuantity);
+            validateInventoryAvailability(cartItem.getBook().getInventory(), newQuantity);
             cartItem.setQuantity(newQuantity);
         } else {
             Book book = bookService.getBookById(bookId);
+            validateInventoryAvailability(book.getInventory(), quantity);
             cartItem = new CartItem();
             cartItem.setCart(cart);
             cartItem.setBook(book);
@@ -115,20 +117,18 @@ public class CartService {
         }
 
         cartItemRepository.save(cartItem);
-        updateInventoryQuantity(inventory, -quantity);
+        updateInventoryQuantity(cartItem.getBook().getInventory(), -quantity);
 
-        return cart;
+        return mapCartToDTO(cart);
     }
 
     @Transactional
-    public Cart updateQuantity(Long bookId, Long userId, int quantity) {
+    public CartDTO updateQuantity(Long bookId, Long userId, int quantity) {
         Cart cart = getCartByUserId(userId);
         CartItem cartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId)
                 .orElseThrow(() -> new BookNotFoundException("Cart item not found"));
 
-        Inventory inventory = inventoryRepository.findByBookId(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
-
+        Inventory inventory = cartItem.getBook().getInventory();
         int quantityDifference = quantity - cartItem.getQuantity();
         validateInventoryAvailability(inventory, quantityDifference);
 
@@ -137,11 +137,11 @@ public class CartService {
 
         updateInventoryQuantity(inventory, -quantityDifference);
 
-        return cart;
+        return mapCartToDTO(cart);
     }
 
     @Transactional
-    public Cart removeFromCart(Long bookId, Long userId) {
+    public CartDTO removeFromCart(Long bookId, Long userId) {
         Cart cart = getCartByUserId(userId);
         CartItem cartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId)
                 .orElseThrow(() -> new BookNotFoundException("Cart item not found"));
@@ -149,30 +149,22 @@ public class CartService {
         cart.getCartItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
 
-        Inventory inventory = inventoryRepository.findByBookId(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
+        updateInventoryQuantity(cartItem.getBook().getInventory(), cartItem.getQuantity());
 
-        updateInventoryQuantity(inventory, cartItem.getQuantity());
-
-        return cart;
+        return mapCartToDTO(cart);
     }
 
     @Transactional
-    public Cart clearCart(Long userId) {
+    public void clearCart(Long userId) {
         Cart cart = getCartByUserId(userId);
-        List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+        List<CartItem> cartItems = cartItemRepository.findByCartIdWithInventory(cart.getId());
 
         for (CartItem cartItem : cartItems) {
-            Inventory inventory = inventoryRepository.findByBookId(cartItem.getBook().getId())
-                    .orElseThrow(() -> new BookNotFoundException("Book not found in inventory"));
-
-            updateInventoryQuantity(inventory, cartItem.getQuantity());
+            updateInventoryQuantity(cartItem.getBook().getInventory(), cartItem.getQuantity());
         }
 
         cartItemRepository.deleteByCartId(cart.getId());
         cart.getCartItems().clear();
-
-        return cart;
     }
 
     private void validateInventoryAvailability(Inventory inventory, int requestedQuantity) {

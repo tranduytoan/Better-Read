@@ -13,6 +13,10 @@ export class UserService {
 
   private apiUrl = 'http://localhost:8080/api/v1/user';
   constructor(private http: HttpClient) {
+    const userId = localStorage.getItem('user_id');
+    if (userId) {
+      this.userIdSubject.next(+userId);
+    }
   }
 
   registerUser(user: User): Observable<User> {
@@ -23,6 +27,7 @@ export class UserService {
   }
 
   clearUserId() {
+    localStorage.removeItem('user_id');
     this.userIdSubject.next(null);
   }
 }

@@ -1,0 +1,14 @@
+.custom-dialog-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-dialog-container .mat-mdc-dialog-surface {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: none;
+  max-height: none;
+}

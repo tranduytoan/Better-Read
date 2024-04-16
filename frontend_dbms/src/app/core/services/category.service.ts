@@ -12,4 +12,8 @@ export class CategoryService {
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories`);
   }
+
+  getCategoryHierarchy(categoryId: number): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/categories/${categoryId}/hierarchy`);
+  }
 }

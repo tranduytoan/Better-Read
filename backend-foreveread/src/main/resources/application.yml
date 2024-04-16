@@ -32,6 +32,11 @@ spring:
 #>>>>>>> 048be537d66767d20a1bae68f5d4c64c73d3da58
   jpa:
     hibernate: ddl-auto=update
+#  neo4j:
+#    uri: ${env.AURA_URI}
+#    authentication:
+#      username: ${env.AURA_USER}
+#      password: ${env.AURA_PASSWORD}
 logging:
   level:
     dbmsforeveread:

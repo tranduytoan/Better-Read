@@ -1,8 +1,7 @@
 import {PublisherDTO} from "./publisherDTO";
-import {AuthorDTO} from "./authorDTO";
-import {CategoryDTO} from "./categoryDTO";
-import {InventoryDTO} from "./inventoryDTO";
 import {Inventory} from "./inventory";
+import {List} from "postcss/lib/list";
+import {CategoryDTO} from "./categoryDTO";
 
 export interface BookDTO {
   id: number;
@@ -16,6 +15,6 @@ export interface BookDTO {
   price: number;
   imageUrl: string;
   authorIds: number[];
-  categoryIds: number[];
+  category: CategoryDTO[];
   inventory: Inventory;
 }
