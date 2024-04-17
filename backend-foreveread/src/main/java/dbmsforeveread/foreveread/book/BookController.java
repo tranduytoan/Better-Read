@@ -40,6 +40,15 @@ public class BookController {
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
         Book updatedBook = bookService.updateBook(id, book);
+        // update cache khi có sự thay đổi trong nhưững quyển trong cache
+        // nếu không tìm thâấy thì thôi không cần update
+        // trả lời câu hỏi tại sao cần set db trước xoá cache sau để đống bộ dữ liệu
+        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (bookDTO != null) {
+            bookRedisServiceImpli.deleteBookToRedis(id.toString());
+            BookDTO bookDTO1 = bookService.getBookDetails(id);
+            bookRedisServiceImpli.addBookToRedis(bookDTO1);
+        }
         return ResponseEntity.ok(updatedBook);
     }
 
