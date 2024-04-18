@@ -2,7 +2,6 @@ package dbmsforeveread.foreveread.SearchEngine.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -26,6 +25,9 @@ public class Product {
     @Field(type=FieldType.Text, name = "category")
     private String category;
 
+    @Field(type = FieldType.Text,name = "image_url")
+    private String image_url;
+
     @Field(type = FieldType.Text, name = "publisher")
     private String publisher;
 
@@ -38,14 +40,8 @@ public class Product {
     @Field(type=FieldType.Float, name = "price")
     private Double price;
 
-    @Field(type=FieldType.Keyword, name="imageurl")
-    private String imageurl;
-
     @Field(type = FieldType.Text, name = "layout_book")
     private String layout_book;
-//
-//    @Field(type=FieldType.Boolean, name = "inStock")
-//    private boolean inStock;
 }
 
 

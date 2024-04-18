@@ -48,6 +48,16 @@ public class BookController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
+//        Book updatedBook = bookService.updateBook(id, book);
+        // update cache khi có sự thay đổi trong nhưững quyển trong cache
+        // nếu không tìm thâấy thì thôi không cần update
+        // trả lời câu hỏi tại sao cần set db trước xoá cache sau để đống bộ dữ liệu
+//        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
+//        if (bookDTO != null) {
+//            bookRedisServiceImpli.deleteBookToRedis(id.toString());
+//            BookDTO bookDTO1 = bookService.getBookDetails(id);
+//            bookRedisServiceImpli.addBookToRedis(bookDTO1);
+//        }
         Book updatedBook = bookService.updateBook(id, book);
         return ResponseEntity.ok(updatedBook);
     }
@@ -76,33 +86,6 @@ public class BookController {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 //        }
 //    }
-
-    @PostMapping("/search")
-    public ResponseEntity<Page<Product>> searchProducts(@RequestBody BookSearchRequest request,
-                                                        @RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "10") int size,
-                                                        @RequestParam(defaultValue = "price,asc") String[] sort) {
-        log.info("Received BookSearchRequest: {}", request);
-        try {
-            List<Sort.Order> orders = Arrays.stream(sort)
-                    .map(s -> {
-                        String[] split = s.split(",");
-                        if (split.length == 2) {
-                            return new Sort.Order(Sort.Direction.fromString(split[1]), split[0]);
-                        } else {
-                            return new Sort.Order(Sort.Direction.ASC, "price");
-                        }
-                    })
-                    .collect(Collectors.toList());
-            Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
-
-            Page<Product> products = productService.searchProducts(request, pageable);
-            return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            log.error("Error when searching books", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @GetMapping("/{bookId}/categories")
     public ResponseEntity<Set<Category>> getBookCategories(@PathVariable Long bookId) {

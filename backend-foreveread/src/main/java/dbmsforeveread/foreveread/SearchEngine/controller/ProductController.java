@@ -22,10 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 @RestController
 @Slf4j
-@RequestMapping("api/v1/products")
+@RequestMapping("api/products")
 public class ProductController {
 
     @Autowired
@@ -74,23 +75,19 @@ public class ProductController {
             Product insertedProduct = elasticSearchQuery.insertProduct(product);
             return new ResponseEntity<>(insertedProduct, HttpStatus.CREATED);
         } catch (Exception e) {
-            // Log the exception
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
-//    @GetMapping("/matchSearch")
-//    public ResponseEntity<List<Product>> searchProductsByName(@RequestParam(name = "title") String title) {
-//        try {
-//            log.info("Searching products by title: {}", title);
-//            List<Product> products = productService.searchProductsByName(title);
-//            return new ResponseEntity<>(products, HttpStatus.OK);
-//        } catch (Exception e) {
-//            // Log error details here for debugging
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @GetMapping("/matchSearch/{title}")
+    public ResponseEntity<List<Product>> searchProductsByName(@PathVariable String title) {
+        try {
+            List<Product> products = productService.searchProductsByName(title);
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/fuzzySearch/{approximateProductName}")
     List<Product> fuzzySearch( @PathVariable String approximateProductName ) throws IOException {
@@ -114,27 +111,20 @@ public class ProductController {
         }
         List<String> listOfProductNames = new ArrayList<>();
         for(Product product : productList){
-//            listOfProductNames.add(product.getName())  ;
             listOfProductNames.add(product.getTitle())  ;
-
         }
         return listOfProductNames;
     }
 
-    @PostMapping("/search")
-    public ResponseEntity<Page<Product>> searchProducts(@RequestBody BookSearchRequest request,
-                                                        @RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "10") int size) {
-        try {
-            Pageable pageable = PageRequest.of(page, size);
-
-            Page<Product> products = productService.searchProducts(request, pageable);
-            return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            log.error("Error when searching books", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @GetMapping("/searchFilter")
+    public List<Product> searchFilter(
+            @RequestParam(required = false) Map<String, Object> filters,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
+    ) throws IOException {
+        return productService.getProductsByFilters(filters, minPrice, maxPrice);
     }
+    
 }
 
 

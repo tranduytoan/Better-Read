@@ -2,17 +2,26 @@ package dbmsforeveread.foreveread.SearchEngine.repository;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.Result;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.json.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 import dbmsforeveread.foreveread.SearchEngine.domain.Product;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Repository
 public class ProductRepository {
@@ -92,5 +101,51 @@ public class ProductRepository {
             throw new RuntimeException("Failed to insert product. Elasticsearch response: " + response.result().name());
         }
     }
+
+        public List<Product> searchWithFilters(Map<String, Object> filters, Double minPrice, Double maxPrice) throws IOException {
+        SearchRequest searchRequest = SearchRequest.of(s -> s
+                .index(PRODUCTS)
+                .query(q -> q
+                        .bool(b -> {
+                            List<Query> mustQueries = filters.entrySet().stream()
+                                    .map(filter -> {
+                                        if (filter.getKey().equalsIgnoreCase("price")) {
+                                            return null; // Skip handling price here as it's handled below
+                                        } else {
+                                            return Query.of(m -> m
+                                                    .matchPhrase(mp -> mp
+                                                            .field(filter.getKey())
+                                                            .query(filter.getValue().toString())
+                                                    )
+                                            );
+                                        }
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList());
+
+                            // Handling range query for price
+                            if (minPrice != null || maxPrice != null) {
+                                Query priceRangeQuery = Query.of(r -> r
+                                        .range(ro -> ro
+                                                .field("price")
+                                                .gte(minPrice != null ? JsonData.of(minPrice) : null)
+                                                .lte(maxPrice != null ? JsonData.of(maxPrice) : null)
+                                        )
+                                );
+                                mustQueries.add(priceRangeQuery);
+                            }
+
+                            b.must(mustQueries);
+                            return b;
+                        })
+                )
+        );
+        SearchResponse<Product> response = elasticsearchClient.search(searchRequest, Product.class);
+        return response.hits().hits().stream()
+                .map(hit -> hit.source())
+                .collect(Collectors.toList());
+    }
+
+
 }
 

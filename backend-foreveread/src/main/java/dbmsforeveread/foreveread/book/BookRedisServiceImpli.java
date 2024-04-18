@@ -54,7 +54,8 @@ public class BookRedisServiceImpli extends BaseRedisServiceImpli implements Book
 
     @Override
     public void deleteBookToRedis(String id) {
-
+        String field = key + id;
+        this.delete(key, field);
     }
     // hoặc ây tuwf t đã cái delete vơới update t từ h kiểu thêm vào redis đã
 
