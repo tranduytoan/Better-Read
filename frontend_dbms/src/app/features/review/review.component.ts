@@ -16,7 +16,7 @@ export class ReviewComponent implements OnInit {
   showReviewForm: boolean = false;
   reviewForm!: FormGroup;
   currentPage: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalPages: number = 0;
   rating: number = 0;
   hoverRating: number = 0;
@@ -67,6 +67,7 @@ export class ReviewComponent implements OnInit {
   cancelReviewForm(): void {
     this.showReviewForm = false;
     this.reviewForm.reset();
+    this.rating = 0;
   }
 
   submitReview(): void {
@@ -89,7 +90,7 @@ export class ReviewComponent implements OnInit {
         },
         (error) => {
           console.error('Error submitting review:', error);
-          this.toastr.error('Failed to submit review. Please try again.');
+          this.toastr.error('Please try again.');
         }
       );
     }

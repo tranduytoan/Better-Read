@@ -14,7 +14,7 @@ export class MainContentComponent implements OnInit {
   currentPage: number = 0;
   totalPages: number = 0;
   maxVisiblePages: number = 5;
-  pageSize: number = 9;
+  pageSize: number = 12;
   searchResults: any[] = [];
   selectedPrice: string = '';
   selectedCategory: string = '';
@@ -45,18 +45,59 @@ export class MainContentComponent implements OnInit {
     return this.selectedPrice;
   }
 
+  // searchBooks() {
+  //   console.log("Search ",this.searchQuery );
+  //   if (this.searchQuery.trim() !== '') {
+  //     // this.resetFilters();
+  //     this.searchService.searchBooks(this.searchQuery, this.currentPage, this.pageSize, this.getSelectedFilters()).subscribe(
+  //       (response) => {
+  //         this.searchResults = response.content;
+  //         this.totalPages = response.totalPages;
+  //       },
+  //       (error) => {
+  //         console.error(error);
+  //         this.toastr.error('An error occured while searching for books');
+  //       }
+  //     );
+  //   }
+  // }
+
+  // searchBooks() {
+  //   console.log("Search ",this.searchQuery );
+  //   if (this.searchQuery.trim() !== '') {
+  //     // this.resetFilters();
+  //     this.searchService.searchBooks(this.searchQuery, this.currentPage, this.pageSize).subscribe(
+  //       (response) => {
+  //         this.searchResults = response.content;
+  //         this.totalPages = response.totalPages;
+  //       },
+  //       (error) => {
+  //         console.error(error);
+  //         this.toastr.error('An error occured while searching for books');
+  //       }
+  //     );
+  //   }
+  // }
+
   searchBooks() {
-    console.log("Search ",this.searchQuery );
+    console.log("Search ", this.searchQuery);
     if (this.searchQuery.trim() !== '') {
-      // this.resetFilters();
-      this.searchService.searchBooks(this.searchQuery, this.currentPage, this.pageSize, this.getSelectedFilters()).subscribe(
+      const [minPrice, maxPrice] = this.selectedPrice.split('-').map(Number);
+      const request = {
+        title: this.searchQuery,
+        minPrice: minPrice !== 0 ? minPrice : null,
+        maxPrice: maxPrice !== 0 ? maxPrice : null,
+        categories: [] // You can add category filtering here if needed
+      };
+
+      this.searchService.searchBooks(request, this.currentPage, this.pageSize).subscribe(
         (response) => {
           this.searchResults = response.content;
           this.totalPages = response.totalPages;
         },
         (error) => {
           console.error(error);
-          this.toastr.error('An error occured while searching for books');
+          this.toastr.error('An error occurred while searching for books');
         }
       );
     }

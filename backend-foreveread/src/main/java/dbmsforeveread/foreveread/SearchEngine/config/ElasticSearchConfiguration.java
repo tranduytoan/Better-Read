@@ -77,7 +77,7 @@ public class ElasticSearchConfiguration {
     public RestClient getRestClient() {
 
         String usename = "elastic";
-        String password = "LhsFsgfG_KKRe1sWpUq+";
+        String password = "23FTID-dJnTYeMsD-V4W";
 
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY,

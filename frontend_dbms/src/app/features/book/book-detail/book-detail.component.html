@@ -72,6 +72,8 @@
               class="text-blue-500 mt-2 focus:outline-none"> {{ expandedDescription ? 'Read Less' : 'Read More' }}
       </button>
     </div>
+    <app-book-recommendation [bookId]="book?.id || 0"></app-book-recommendation>
     <app-review *ngIf="bookId" [bookId]="bookId" [userId]="userId"></app-review>
-
   </div>
+
+

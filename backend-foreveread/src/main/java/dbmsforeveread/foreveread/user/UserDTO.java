@@ -1,5 +1,6 @@
 package dbmsforeveread.foreveread.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,5 +11,7 @@ public class UserDTO {
     private String name;
     private String email;
     private String password;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 }

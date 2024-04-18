@@ -1,0 +1,76 @@
+<!--<div class="container mx-auto py-8">-->
+<!--  <h2 class="text-3xl font-bold mb-8">Fahasa Giới Thiệu</h2>-->
+<!--  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">-->
+<!--    <div *ngFor="let book of recommendedBooks" class="bg-white rounded-lg shadow-md overflow-hidden">-->
+<!--      <div class="relative">-->
+<!--        <img [src]="book.imageUrl" alt="Book Cover" class="w-full h-64 object-cover">-->
+<!--        <div class="absolute top-0 left-0 mt-4 ml-4">-->
+<!--          <span class="bg-orange-500 text-white text-sm font-bold uppercase px-2 py-1 rounded-full">10%</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="p-6">-->
+<!--        <h3 class="text-lg font-bold mb-2 line-clamp-2">{{ book.title }}</h3>-->
+<!--        <div class="flex items-center justify-between">-->
+<!--          <p class="text-gray-600 text-base line-through">{{ book.price | currency }}</p>-->
+<!--          <p class="text-orange-600 font-bold text-lg">{{ book.discountedPrice | currency }}</p>-->
+<!--        </div>-->
+<!--        <div class="mt-4">-->
+<!--          <span class="text-yellow-500">&#9733;</span>-->
+<!--          <span class="text-yellow-500">&#9733;</span>-->
+<!--          <span class="text-yellow-500">&#9733;</span>-->
+<!--          <span class="text-yellow-500">&#9733;</span>-->
+<!--          <span class="text-yellow-500">&#9733;</span>-->
+<!--          <span class="text-gray-500 text-sm ml-1">({{ book.reviewCount }})</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+
+<div class="container mx-auto py-8">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-3xl font-bold mb-8">Products related to this item</h2>
+    <div class="relative">
+      <div class="carousel-container overflow-hidden">
+        <div class="carousel-inner flex transition-transform duration-300" [style.transform]="'translateX(' + currentPosition + 'px)'">
+          <div *ngFor="let book of recommendedBooks" class="carousel-item flex-none mx-2">
+            <div class="w-48">
+              <div class="relative">
+                <img [src]="book.imageUrl" (click)="goToBookDetail(book.bookId)" alt="Book Cover" class="cursor-pointer w-full h-56 object-contain">
+                <div class="absolute top-0 left-0 mt-2 ml-2">
+                  <span class="bg-orange-500 text-white text-xs font-bold uppercase px-1 py-0.5 rounded">10%</span>
+                </div>
+              </div>
+              <div class="mt-2">
+                <h3 class="text-sm font-bold mb-1 line-clamp-2 w-full cursor-pointer " (click)="goToBookDetail(book.bookId)">{{ book.title }}</h3>
+                <div class="flex items-center justify-between">
+                  <p class="text-gray-600 text-xs line-through">{{ book.price | currency }}</p>
+                  <p class="text-orange-600 font-bold text-sm">{{ book.discountedPrice | currency }}</p>
+                </div>
+                <div class="mt-1">
+                  <span class="text-yellow-500 text-xs">&#9733;</span>
+                  <span class="text-yellow-500 text-xs">&#9733;</span>
+                  <span class="text-yellow-500 text-xs">&#9733;</span>
+                  <span class="text-yellow-500 text-xs">&#9733;</span>
+                  <span class="text-yellow-500 text-xs">&#9733;</span>
+                  <span class="text-gray-500 text-2xs ml-1">({{ book.reviewCount }})</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md focus:outline-none" (click)="previousSlide()" [disabled]="currentIndex === 0">
+        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <button class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md focus:outline-none" (click)="nextSlide()" [disabled]="currentIndex >= recommendedBooks.length - visibleItems">
+        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

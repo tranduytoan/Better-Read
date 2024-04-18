@@ -6,9 +6,9 @@ import dbmsforeveread.foreveread.orderItem.OrderItem;
 import dbmsforeveread.foreveread.user.User;
 import dbmsforeveread.foreveread.user.UserProfile;
 import dbmsforeveread.foreveread.user.UserService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +20,7 @@ public class OrderService {
     private final CartService cartService;
     private final UserService userService;
 
-    @Transactional
+    @Transactional()
     public Order checkout(Long userId) {
         User currentUser = userService.getUserById(userId);
         Cart cart = cartService.getCartByUser(currentUser);

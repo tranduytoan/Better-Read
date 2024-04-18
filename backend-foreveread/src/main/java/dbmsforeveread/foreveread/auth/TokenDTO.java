@@ -1,12 +1,11 @@
 package dbmsforeveread.foreveread.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
 public class TokenDTO {
     private Long userId;
     private String accessToken;

@@ -3,22 +3,29 @@ package dbmsforeveread.foreveread.SearchEngine.controller;
 
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import dbmsforeveread.foreveread.SearchEngine.BookSearchRequest;
 import dbmsforeveread.foreveread.SearchEngine.domain.Product;
 import dbmsforeveread.foreveread.SearchEngine.repository.ProductRepository;
 import dbmsforeveread.foreveread.SearchEngine.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
         import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
-@RequestMapping("api/products")
+@RequestMapping("api/v1/products")
 public class ProductController {
 
     @Autowired
@@ -73,16 +80,17 @@ public class ProductController {
     }
 
 
-    @GetMapping("/matchSearch")
-    public ResponseEntity<List<Product>> searchProductsByName(@RequestParam(name = "name") String name) {
-        try {
-            List<Product> products = productService.searchProductsByName(name);
-            return new ResponseEntity<>(products, HttpStatus.OK);
-        } catch (Exception e) {
-            // Log error details here for debugging
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/matchSearch")
+//    public ResponseEntity<List<Product>> searchProductsByName(@RequestParam(name = "title") String title) {
+//        try {
+//            log.info("Searching products by title: {}", title);
+//            List<Product> products = productService.searchProductsByName(title);
+//            return new ResponseEntity<>(products, HttpStatus.OK);
+//        } catch (Exception e) {
+//            // Log error details here for debugging
+//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @GetMapping("/fuzzySearch/{approximateProductName}")
     List<Product> fuzzySearch( @PathVariable String approximateProductName ) throws IOException {
@@ -106,12 +114,27 @@ public class ProductController {
         }
         List<String> listOfProductNames = new ArrayList<>();
         for(Product product : productList){
-            listOfProductNames.add(product.getName())  ;
+//            listOfProductNames.add(product.getName())  ;
+            listOfProductNames.add(product.getTitle())  ;
+
         }
         return listOfProductNames;
     }
 
+    @PostMapping("/search")
+    public ResponseEntity<Page<Product>> searchProducts(@RequestBody BookSearchRequest request,
+                                                        @RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "10") int size) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
 
+            Page<Product> products = productService.searchProducts(request, pageable);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            log.error("Error when searching books", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }
 
 

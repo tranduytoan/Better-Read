@@ -31,7 +31,7 @@ public class ReadingProgressServiceImpl implements ReadingProgressService {
     }
 
     @Override
-    @Transactional
+    @Transactional()
     public void updateReadingProgress(Long bookId, Long userId, ReadingStatus progress, int currentPage) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
@@ -44,7 +44,7 @@ public class ReadingProgressServiceImpl implements ReadingProgressService {
     }
 
     @Override
-    @Transactional
+    @Transactional()
     public ReadingProgressDTO addBookToReadingProgress(Long bookId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
@@ -94,7 +94,7 @@ public class ReadingProgressServiceImpl implements ReadingProgressService {
     }
 
     @Override
-    @Transactional
+    @Transactional()
     public void removeBookFromReadingProgress(Long bookId, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));

@@ -2,6 +2,7 @@ package dbmsforeveread.foreveread.SearchEngine.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -16,22 +17,32 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @Document(indexName = "products")
 public class Product {
     @Id
+    @Field(type = FieldType.Keyword)
     private String id;
 
-    @Field(type=FieldType.Text, name = "name")
-    private String name;
+    @Field(type=FieldType.Text, name = "title")
+    private String title;
 
     @Field(type=FieldType.Text, name = "category")
     private String category;
 
+    @Field(type = FieldType.Text, name = "publisher")
+    private String publisher;
+
     @Field(type=FieldType.Text, name = "author")
     private String author;
 
-    @Field(type = FieldType.Text,name = "language")
+    @Field(type = FieldType.Keyword,name = "language")
     private String language;
 
-    @Field(type=FieldType.Double, name = "price")
+    @Field(type=FieldType.Float, name = "price")
     private Double price;
+
+    @Field(type=FieldType.Keyword, name="imageurl")
+    private String imageurl;
+
+    @Field(type = FieldType.Text, name = "layout_book")
+    private String layout_book;
 //
 //    @Field(type=FieldType.Boolean, name = "inStock")
 //    private boolean inStock;

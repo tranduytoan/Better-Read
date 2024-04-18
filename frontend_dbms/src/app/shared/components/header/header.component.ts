@@ -70,8 +70,20 @@ export class HeaderComponent implements OnInit{
     });
   }
 
+  // onSearchTriggered(searchQuery: string) {
+  //   this.searchService.searchBooks(searchQuery, 0, 9, '').subscribe(
+  //     (response) => {
+  //       this.searchResults.emit(response.content);
+  //     },
+  //     (error) => {
+  //       console.error(error);
+  //     }
+  //   );
+  // }
+
+  //use elasticsearch
   onSearchTriggered(searchQuery: string) {
-    this.searchService.searchBooks(searchQuery, 0, 9, '').subscribe(
+    this.searchService.searchBooks(searchQuery, 0, 9).subscribe(
       (response) => {
         this.searchResults.emit(response.content);
       },

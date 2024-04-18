@@ -5,7 +5,6 @@ import dbmsforeveread.foreveread.refreshToken.RefreshTokenRepository;
 import dbmsforeveread.foreveread.user.User;
 import dbmsforeveread.foreveread.user.UserRepository;
 import dbmsforeveread.foreveread.user.UserService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -104,7 +104,7 @@ public class AuthController {
 //    }
 
     @PostMapping("/login")
-    @Transactional
+    @Transactional()
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest LoginRequest) {
         logger.info("Attempting login for user: {}", LoginRequest.getUsername());
 
@@ -124,7 +124,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @Transactional
+    @Transactional()
     public ResponseEntity<?> logout(@RequestBody TokenDTO tokenDTO) {
         String refreshTokenString = tokenDTO.getRefreshToken();
         if (jwtToken.validateRefreshToken(refreshTokenString)
@@ -136,7 +136,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout-all")
-    @Transactional
+    @Transactional()
     public ResponseEntity<?> logoutAll(@RequestBody TokenDTO tokenDTO) {
         String refreshTokenString = tokenDTO.getRefreshToken();
         if (jwtToken.validateRefreshToken(refreshTokenString)

@@ -7,29 +7,18 @@ import {UserService} from "../../../core/services/user.service";
 import {ToastrService} from "ngx-toastr";
 import {ReadingProgressService} from "../../../core/services/readingprogress.service";
 import {ReadingProgress} from "../../../shared/models/readingprogress";
-import {animate, style, transition, trigger} from "@angular/animations";
 import {ReviewService} from "../../../core/services/review.service";
 import {Category} from "../../../shared/models/category";
 import {CategoryService} from "../../../core/services/category.service";
+import {ScrollService} from "../../../core/services/scroll.service";
 @Component({
   selector: 'app-book-detail',
   templateUrl: './book-detail.component.html',
   styleUrls: ['./book-detail.component.css'],
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('300ms ease-in', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-out', style({ opacity: 0 }))
-      ])
-    ])
-  ]
 })
 export class BookDetailComponent implements OnInit {
   book!: BookDTO;
-  bookId: string | null = '';
+  bookId!: string | null;
   quantity: number = 1;
   userId!: number | null;
   expandedDescription: boolean = false;
@@ -42,26 +31,33 @@ export class BookDetailComponent implements OnInit {
     private toastr: ToastrService,
     private readingprogressService: ReadingProgressService,
     private reviewService: ReviewService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private scrollService: ScrollService
   ) {}
 
   ngOnInit(): void {
-    this.bookId = this.route.snapshot.paramMap.get('id');
-    if (this.bookId) {
-      this.searchService.getBookDetails(this.bookId).subscribe(
-        (book: BookDTO) => {
-          this.book = book;
-          if (this.book.category && this.book.category.length > 0) {
-            this.loadCategoryHierarchy(this.book.category[0].id);
+    // this.bookId = this.route.snapshot.paramMap.get('id');
+    this.route.paramMap.subscribe(params => {
+      this.bookId = params.get('id');
+      if (this.bookId) {
+        this.searchService.getBookDetails(this.bookId).subscribe(
+          (book: BookDTO) => {
+            this.book = book;
+            if (this.book.category && this.book.category.length > 0) {
+              this.loadCategoryHierarchy(this.book.category[0].id);
+            }
+            this.scrollService.scrollToTop();
+
+          },
+          (error) => {
+            console.error('Error fetching book details:', error);
+            this.toastr.error('Failed to load book details.');
+            this.router.navigate(['/404']);
           }
-        },
-        (error) => {
-          console.error('Error fetching book details:', error);
-          this.toastr.error('Failed to load book details.');
-          this.router.navigate(['/404']);
-        }
-      );
-    }
+        );
+      }
+    })
+
 
     this.userService.userId$.subscribe(userId => {
       this.userId = userId;

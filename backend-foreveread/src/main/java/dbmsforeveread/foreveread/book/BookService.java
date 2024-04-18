@@ -8,6 +8,7 @@ import dbmsforeveread.foreveread.exceptions.ResourceNotFoundException;
 import dbmsforeveread.foreveread.inventory.Inventory;
 import dbmsforeveread.foreveread.inventory.InventoryDTO;
 import dbmsforeveread.foreveread.inventory.InventoryRepository;
+import dbmsforeveread.foreveread.neo4j.RecommendationService;
 import dbmsforeveread.foreveread.publisher.Publisher;
 import dbmsforeveread.foreveread.publisher.PublisherDTO;
 import dbmsforeveread.foreveread.publisher.PublisherRepository;
@@ -20,10 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +31,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final InventoryRepository inventoryRepository;
     private final PublisherRepository publisherRepository;
-
+    private final RecommendationService recommendationService;
     @Transactional(readOnly = true)
     public Book getBookById(Long bookId) {
         return bookRepository.findById(bookId)
@@ -45,12 +44,12 @@ public class BookService {
         return book.getPrice();
     }
 
-    @Transactional
+    @Transactional()
     public Book createBook(Book book) {
         return bookRepository.save(book);
     }
 
-    @Transactional
+    @Transactional()
     public Book updateBook(Long id, Book book) {
         Book existingBook = getBookById(id);
         existingBook.setTitle(book.getTitle());
@@ -58,7 +57,7 @@ public class BookService {
         return bookRepository.save(existingBook);
     }
 
-    @Transactional
+    @Transactional()
     public void deleteBook(Long id) {
         Book book = getBookById(id);
         bookRepository.delete(book);
@@ -69,25 +68,25 @@ public class BookService {
 //        Page<Book> books = bookRepository.findByTitleContainingIgnoreCase(query, pageable);
 //        return books.map(this::convertToSearchResultDTO);
 //    }
-    public Page<BookSearchResultDTO> searchBooks(BookSearchRequest request) {
-        String query = request.getQuery();
-        int page = request.getPage();
-        int size = request.getSize();
-        String priceRange = request.getPrice();
-//        List<Category> categories = request.getCategory();
-
-        BigDecimal minPrice = null;
-        BigDecimal maxPrice = null;
-        if (priceRange != null && !priceRange.isEmpty()) {
-            String[] prices = priceRange.split("-");
-            minPrice = new BigDecimal(prices[0]);
-            maxPrice = prices.length > 1 ? new BigDecimal(prices[1]) : null;
-        }
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Book> bookPage = bookRepository.searchBooks(query, minPrice, maxPrice, pageable);
-        return bookPage.map(this::convertToSearchResultDTO);
-    }
+//    public Page<BookSearchResultDTO> searchBooks(BookSearchRequest request) {
+//        String query = request.getQuery();
+//        int page = request.getPage();
+//        int size = request.getSize();
+//        String priceRange = request.getPrice();
+////        List<Category> categories = request.getCategory();
+//
+//        BigDecimal minPrice = null;
+//        BigDecimal maxPrice = null;
+//        if (priceRange != null && !priceRange.isEmpty()) {
+//            String[] prices = priceRange.split("-");
+//            minPrice = new BigDecimal(prices[0]);
+//            maxPrice = prices.length > 1 ? new BigDecimal(prices[1]) : null;
+//        }
+//
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<Book> bookPage = bookRepository.searchBooks(query, minPrice, maxPrice, pageable);
+//        return bookPage.map(this::convertToSearchResultDTO);
+//    }
 
     private BookSearchResultDTO convertToSearchResultDTO(Book book) {
         BookSearchResultDTO dto = new BookSearchResultDTO();
@@ -171,4 +170,25 @@ public class BookService {
         }
         return Collections.emptySet();
     }
+
+    public List<BookRecommendedResponse> getRecommendedBooks(Long bookId) {
+        List<Map<String, Object>> recommendedBooksData = recommendationService.getRecommendations(bookId);
+        return recommendedBooksData.stream()
+                .map(bookData -> {
+                    bookData.forEach((k, v) -> System.out.println(k + ": " + v));
+                    BookRecommendedResponse bookRecommendedResponse = new BookRecommendedResponse();
+                    bookRecommendedResponse.setBookId((Long) bookData.get("bookId"));
+                    bookRecommendedResponse.setTitle((String) bookData.get("title"));
+//                    bookDTO.setIsbn((String) bookData.get("isbn"));
+//                    bookDTO.setPublicationDate((LocalDate) bookData.get("publicationDate"));
+//                    bookDTO.setLanguage((String) bookData.get("language"));
+//                    bookDTO.setPages((Integer) bookData.get("pages"));
+//                    bookDTO.setDescription((String) bookData.get("description"));
+//                    bookDTO.setPrice((BigDecimal) bookData.get("price"));
+                    bookRecommendedResponse.setImageUrl((String) bookData.get("imageUrl"));
+                    return bookRecommendedResponse;
+                })
+                .collect(Collectors.toList());
+    }
+
 }

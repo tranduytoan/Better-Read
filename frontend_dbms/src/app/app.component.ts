@@ -11,7 +11,6 @@ import {AuthService} from "./core/services/auth.service";
 export class AppComponent implements OnInit{
   title = 'BetterRead';
   searchResults: any[] = [];
-  isLandingPage: boolean = true;
 
   constructor(private router: Router, private authService: AuthService) {}
 
@@ -19,16 +18,13 @@ export class AppComponent implements OnInit{
     this.searchResults = results;
   }
 
-  onActivate(event: any) {
-    this.isLandingPage = event.constructor.name === 'LandingPageComponent';
-  }
   isAuthPage(): boolean {
     const currentUrl = this.router.url;
     return currentUrl === '/login' || currentUrl === '/signup' || currentUrl === '/register';
   }
 
   ngOnInit(): void {
-    console.log('Foreveread App started!');
+    console.log('BetterRead App started!');
     this.authService.isAuthenticated();
   }
 }

@@ -1,5 +1,7 @@
 package dbmsforeveread.foreveread.neo4j;
 
+import jakarta.persistence.GeneratedValue;
+import lombok.Data;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
@@ -7,14 +9,16 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.List;
 
-@Node("User")
-public class UserNode {
+@Data
+@Node("Category")
+public class CategoryNode {
     @Id
+    @GeneratedValue
     private Long id;
+
+    @Property("category_id")
+    private Long category_id;
 
     @Property("name")
     private String name;
-
-    @Relationship(type = "PURCHASED", direction = Relationship.Direction.OUTGOING)
-    private List<BookNode> purchasedBooks;
 }

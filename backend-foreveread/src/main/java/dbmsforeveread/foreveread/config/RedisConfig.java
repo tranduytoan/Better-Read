@@ -19,7 +19,8 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+//import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class RedisConfig {
@@ -61,9 +62,8 @@ public class RedisConfig {
     public ObjectMapper redisObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-
-        module.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ISO_DATE));
-        module.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ISO_DATE));
+//        module.addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ISO_DATE));
+//        module.addDeserializer(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ISO_DATE));
         objectMapper.registerModule(module);
         return objectMapper;
     }

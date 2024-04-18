@@ -49,4 +49,8 @@ export class BookService {
   searchBooks(title: string, page: number, size: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/search?title=${title}&page=${page}&size=${size}`);
   }
+
+  getRecommendedBooks(bookId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${bookId}/recommendations`);
+  }
 }

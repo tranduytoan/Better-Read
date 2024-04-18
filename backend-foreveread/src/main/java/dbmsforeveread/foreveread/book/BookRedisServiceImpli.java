@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dbmsforeveread.foreveread.config.BaseRedisService;
 import dbmsforeveread.foreveread.config.BaseRedisServiceImpli;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v2/redis")
 @Service
 @Component
+@Slf4j
 public class BookRedisServiceImpli extends BaseRedisServiceImpli implements BookRedisService {
 
     private final ObjectMapper redisObjectMapper;
@@ -41,7 +43,7 @@ public class BookRedisServiceImpli extends BaseRedisServiceImpli implements Book
             String jsonString = redisObjectMapper.writeValueAsString(book);
             this.hashSet(key, field, jsonString);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to add book to Redis", e);
         }
     }
 
@@ -56,115 +58,26 @@ public class BookRedisServiceImpli extends BaseRedisServiceImpli implements Book
     }
     // hoặc ây tuwf t đã cái delete vơới update t từ h kiểu thêm vào redis đã
 
-
     @Override
     public BookDTO getBookFromRedis(String id) {
         String field = key + id;
+//        long startTime = System.currentTimeMillis();
         // check xem co ko
         String json = (String) this.hashGet(key, field);
         BookDTO BookResponse = null;
+
         try {
             if (json != null) {
                 BookResponse = redisObjectMapper.readValue(json, BookDTO.class);
             }
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to parse book from Redis", e);
         }
+
+//        long endTime = System.currentTimeMillis();
+//        long searchTime = endTime - startTime;
+//        log.info("Time to search bookId{} in Redis: {} ms", id, searchTime);
+
         return BookResponse;
     }
-
 }
-//    @Override
-//    public void clear() {
-//
-//    }
-//
-//    @Override
-//    public List<Book> getAllBooks(String keyWord, Long id) {
-//        return null;
-//    }
-//
-//    @Override
-//    public void saveAllProducts(List<Book> books, String keyWord, Long id) {
-//
-//    }
-
-
-//    @PostMapping
-//    public void set(){
-//        redisService.set("hehe","hihi");
-//    }
-
-
-
-
-//    private static final Logger logger = LoggerFactory.getLogger(BookRedisService.class);
-//
-//    private final RedisTemplate<String, String> redisTemplate;
-//    private final ObjectMapper objectMapper;
-//
-//    @Value("${spring.data.redis.use-redis-cache}")
-//    private boolean useRedisCache;
-//
-//    @Autowired
-//    public BookRedisService(RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
-//        this.redisTemplate = redisTemplate;
-//        this.objectMapper = objectMapper;
-//    }
-//
-//    private String getKey(String name, PageRequest pageRequest) {
-//        return "books:" + name + ":" + pageRequest.getPageNumber() + ":" + pageRequest.getPageSize();
-//    }
-//
-//    public void clear() {
-//        if (!useRedisCache) return;
-//        redisTemplate.getConnectionFactory().getConnection().flushDb();
-//    }
-//
-//
-//    public List<Book> getAllBooks(String name, PageRequest pageRequest) throws JsonProcessingException {
-//        if (!useRedisCache) return null;
-//        String key = getKey(name, pageRequest);
-//        String json = redisTemplate.opsForValue().get(key);
-//        return json != null ? objectMapper.readValue(json, new TypeReference<List<Book>>() {}) : null;
-//    }
-//
-//
-//    @Async
-//    public void saveBooksAsync(List<Book> books, String name, PageRequest pageRequest) throws JsonProcessingException {
-//        if (!useRedisCache) return;
-//        String key = getKey(name, pageRequest);
-//        String json = objectMapper.writeValueAsString(books);
-//        redisTemplate.opsForValue().set(key, json);
-//        logger.info("Asynchronously saved books to Redis with key: {}", key);
-//    }
-//    @Async
-////    public void saveBooksAsync(List<Book> books, String name, PageRequest pageRequest) throws JsonProcessingException {
-////        if (!useRedisCache) return;
-////        String key = getKey(name, pageRequest);
-////        Map<String, String> bookMap = books.stream()
-////                .collect(Collectors.toMap(
-////                        Book::getId,
-////                        book -> {
-////                            try {
-////                                return objectMapper.writeValueAsString(book);
-////                            } catch (JsonProcessingException e) {
-////                                logger.error("error serializing books to Json", e);
-////                                return null;
-////                            }
-////                        }
-////                ));
-////    }
-//    public Book getBook(String id) throws JsonProcessingException{
-//        if (!useRedisCache) return null;
-//        String json = redisTemplate.opsForValue().get(id);
-//        return json != null ? objectMapper.readValue(json, Book.class) : null;
-//    }
-//
-//    public void saveBook(Book book) throws JsonProcessingException {
-//        if (!useRedisCache) return;
-//        String json = objectMapper.writeValueAsString(book);
-//        redisTemplate.opsForValue().set(book.getId(), json);
-//    }
-//}
-//

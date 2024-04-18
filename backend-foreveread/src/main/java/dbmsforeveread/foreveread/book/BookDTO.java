@@ -1,5 +1,6 @@
 package dbmsforeveread.foreveread.book;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import dbmsforeveread.foreveread.author.Author;
 import dbmsforeveread.foreveread.author.AuthorDTO;
 import dbmsforeveread.foreveread.category.Category;
@@ -23,6 +24,8 @@ public class BookDTO {
     private String title;
     private String isbn;
     private PublisherDTO publisher;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate publicationDate;
     private String language;
     private Integer pages;

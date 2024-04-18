@@ -1,5 +1,6 @@
 package dbmsforeveread.foreveread.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +24,8 @@ public class User implements UserDetails {
     private String username;
     private String email;
     private String password;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)

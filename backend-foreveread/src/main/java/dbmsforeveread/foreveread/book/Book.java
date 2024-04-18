@@ -1,5 +1,6 @@
 package dbmsforeveread.foreveread.book;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dbmsforeveread.foreveread.author.Author;
 import dbmsforeveread.foreveread.category.Category;
@@ -28,6 +29,7 @@ public class Book {
     @JoinColumn(name = "publisher_id")
     private Publisher publisher;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate publicationDate;
     private String language;
     private Integer pages;

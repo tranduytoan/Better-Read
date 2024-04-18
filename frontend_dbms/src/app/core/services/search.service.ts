@@ -20,13 +20,29 @@ export class SearchService {
   }
 
 
-  searchBooks(searchQuery: string, page: number, pageSize: number, price: string): Observable<any> {
+  // searchBooks(searchQuery: string, page: number, pageSize: number, price: string): Observable<any> {
+  //   const params = new HttpParams()
+  //     .set('query', searchQuery)
+  //     .set('page', page.toString())
+  //     .set('size', pageSize.toString())
+  //     .set('price', price)
+  //   return this.http.get<any>(`${this.apiUrl}/search`, { params });
+  // }
+
+  // searchBooks(searchQuery: string, page: number, pageSize: number): Observable<any> {
+  //   const params = new HttpParams()
+  //     .set('title', searchQuery)
+  //     .set('page', page.toString())
+  //     .set('size', pageSize.toString())
+  //   return this.http.get<any>(`${this.apiUrl}/search`, { params });
+  // }
+
+  searchBooks(request: any, page: number, size: number): Observable<any> {
     const params = new HttpParams()
-      .set('query', searchQuery)
       .set('page', page.toString())
-      .set('size', pageSize.toString())
-      .set('price', price)
-    return this.http.get<any>(`${this.apiUrl}/search`, { params });
+      .set('size', size.toString());
+
+    return this.http.post<any>(`${this.apiUrl}/search`, request, { params });
   }
 
 

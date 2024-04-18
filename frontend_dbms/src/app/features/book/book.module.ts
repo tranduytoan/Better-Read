@@ -6,11 +6,13 @@ import {AppModule} from "../../app.module";
 import {ReviewComponent} from "../review/review.component";
 import {ReviewModule} from "../review/reviewmodule";
 import {RouterLink} from "@angular/router";
+import { BookRecommendationComponent } from './book-recommendation/book-recommendation.component';
 // import { BookRecommendComponent } from './book-recommend/book-recommend.component';
 @NgModule({
   declarations: [
     BookDetailComponent,
-    // BookRecommendComponent
+    BookRecommendationComponent,
+    BookRecommendationComponent
   ],
   imports: [
     CommonModule,
@@ -21,7 +23,7 @@ import {RouterLink} from "@angular/router";
   ],
   exports: [
     BookDetailComponent,
-    // BookRecommendComponent
+    BookRecommendationComponent
   ]
 })
 export class BookModule { }

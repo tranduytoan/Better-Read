@@ -83,7 +83,8 @@ public class CartService {
                 .map(item -> item.getBook().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-    @Transactional
+
+    @Transactional()
     public Cart createNewCart(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BookNotFoundException("User not found"));
@@ -93,7 +94,7 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    @Transactional
+    @Transactional()
     public CartDTO addToCart(Long bookId, Long userId, int quantity) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> createNewCart(userId));
@@ -122,7 +123,7 @@ public class CartService {
         return mapCartToDTO(cart);
     }
 
-    @Transactional
+    @Transactional()
     public CartDTO updateQuantity(Long bookId, Long userId, int quantity) {
         Cart cart = getCartByUserId(userId);
         CartItem cartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId)
@@ -140,7 +141,7 @@ public class CartService {
         return mapCartToDTO(cart);
     }
 
-    @Transactional
+    @Transactional()
     public CartDTO removeFromCart(Long bookId, Long userId) {
         Cart cart = getCartByUserId(userId);
         CartItem cartItem = cartItemRepository.findByCartIdAndBookId(cart.getId(), bookId)
@@ -154,7 +155,7 @@ public class CartService {
         return mapCartToDTO(cart);
     }
 
-    @Transactional
+    @Transactional()
     public void clearCart(Long userId) {
         Cart cart = getCartByUserId(userId);
         List<CartItem> cartItems = cartItemRepository.findByCartIdWithInventory(cart.getId());
