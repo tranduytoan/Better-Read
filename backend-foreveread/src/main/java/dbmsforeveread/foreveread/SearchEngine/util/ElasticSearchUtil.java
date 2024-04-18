@@ -17,7 +17,7 @@ public class ElasticSearchUtil {
     }
     public static FuzzyQuery createFuzzyQuery(String approximateProductName){
         val fuzzyQuery  = new FuzzyQuery.Builder();
-        return  fuzzyQuery.field("name").value(approximateProductName).build();
+        return  fuzzyQuery.field("title").value(approximateProductName).build();
     }
 
     // util for auto suggest query
@@ -28,7 +28,7 @@ public class ElasticSearchUtil {
     }
     public static MatchQuery createAutoSuggestMatchQuery(String partialProductName){
         val autoSuggestQuery = new MatchQuery.Builder();
-        return  autoSuggestQuery.field("name").query(partialProductName).analyzer("standard").build();
+        return  autoSuggestQuery.field("title").query(partialProductName).analyzer("standard").build();
 
     }
 }
