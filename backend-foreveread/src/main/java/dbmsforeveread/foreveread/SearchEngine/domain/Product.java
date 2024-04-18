@@ -18,11 +18,17 @@ public class Product {
     @Id
     private String id;
 
-    @Field(type=FieldType.Text, name = "name")
-    private String name;
+    @Field(type=FieldType.Text, name = "title")
+    private String title;
 
     @Field(type=FieldType.Text, name = "category")
     private String category;
+
+    @Field(type = FieldType.Text,name = "image_url")
+    private String image_url;
+
+    @Field(type = FieldType.Text, name = "publisher")
+    private String publisher;
 
     @Field(type=FieldType.Text, name = "author")
     private String author;
@@ -32,9 +38,11 @@ public class Product {
 
     @Field(type=FieldType.Double, name = "price")
     private Double price;
-//
-//    @Field(type=FieldType.Boolean, name = "inStock")
-//    private boolean inStock;
+
+    @Field(type = FieldType.Text, name = "layout_book")
+    private String layout_book;
+
+
 }
 
 

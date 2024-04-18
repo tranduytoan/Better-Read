@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
         import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -73,10 +74,10 @@ public class ProductController {
     }
 
 
-    @GetMapping("/matchSearch")
-    public ResponseEntity<List<Product>> searchProductsByName(@RequestParam(name = "name") String name) {
+    @GetMapping("/matchSearch/{title}")
+    public ResponseEntity<List<Product>> searchProductsByName(@PathVariable String title) {
         try {
-            List<Product> products = productService.searchProductsByName(name);
+            List<Product> products = productService.searchProductsByName(title);
             return new ResponseEntity<>(products, HttpStatus.OK);
         } catch (Exception e) {
             // Log error details here for debugging
@@ -106,9 +107,18 @@ public class ProductController {
         }
         List<String> listOfProductNames = new ArrayList<>();
         for(Product product : productList){
-            listOfProductNames.add(product.getName())  ;
+            listOfProductNames.add(product.getTitle())  ;
         }
         return listOfProductNames;
+    }
+
+    @GetMapping("/searchFilter")
+    public List<Product> searchFilter(
+            @RequestParam(required = false) Map<String, Object> filters,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
+    ) throws IOException {
+        return productService.getProductsByFilters(filters, minPrice, maxPrice);
     }
 
 
