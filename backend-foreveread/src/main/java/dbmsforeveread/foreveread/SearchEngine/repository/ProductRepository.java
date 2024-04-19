@@ -8,25 +8,25 @@ import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.json.JsonData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-
 import dbmsforeveread.foreveread.SearchEngine.domain.Product;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 
 @Repository
 public class ProductRepository {
 
     public static final String PRODUCTS = "products";
+
     @Autowired
     private ElasticsearchClient elasticsearchClient;
 
@@ -36,13 +36,11 @@ public class ProductRepository {
                 .id(product.getId())
                 .document(product));
 
-        Map<String,String> responseMessages = Map.of(
-                "Created","Document has been created",
-                "Updated", "Document has been updated"
-        );
-
-        return responseMessages.getOrDefault(response.result().name(),"Error has occurred");
-
+        return switch (response.result().name()) {
+            case "Created" -> "Document has been created";
+            case "Updated" -> "Document has been updated";
+            default -> "Error has occurred";
+        };
     }
 
     public Product findDocById(String productId) throws IOException {
@@ -54,7 +52,8 @@ public class ProductRepository {
         DeleteResponse response =elasticsearchClient.delete(deleteRequest);
 
         return new StringBuffer(response.result().name().equalsIgnoreCase("NOT_FOUND")
-                ?"Document not found with id"+productId:"Document has been deleted").toString();
+                ?"Document not found with id" + productId
+                :"Document has been deleted").toString();
     }
 
     public List<Product> findAll() throws IOException {
@@ -79,11 +78,7 @@ public class ProductRepository {
                         .document(product))));
 
         BulkResponse response =elasticsearchClient.bulk(br.build());
-        if(response.errors()){
-            return new StringBuffer("Bulk has errors").toString();
-        } else {
-            return new StringBuffer("Bulk save success").toString();
-        }
+        return response.errors() ? "Bulk has errors" : "Bulk save success";
     }
 
     public Product insertProduct(Product product) throws IOException {
@@ -146,6 +141,59 @@ public class ProductRepository {
                 .collect(Collectors.toList());
     }
 
+    public Page<Product> searchProducts(String title, String category, String publisher, Double minPrice, Double maxPrice, Pageable pageable) {
+        try {
+            SearchRequest searchRequest = buildSearchRequest(title, category, publisher, minPrice, maxPrice, pageable);
+            SearchResponse<Product> searchResponse = elasticsearchClient.search(searchRequest, Product.class);
+            List<Product> products = searchResponse.hits().hits().stream()
+                    .map(Hit::source)
+                    .collect(Collectors.toList());
+
+            return new PageImpl<>(products, pageable, searchResponse.hits().total().value());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to search products", e);
+        }
+    }
+
+    private SearchRequest buildSearchRequest(String title, String category,String publisher, Double minPrice, Double maxPrice, Pageable pageable) {
+        BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+        addTextMatchFilter(boolQueryBuilder, "title", title);
+        addTextMatchFilter(boolQueryBuilder, "category", category);
+        addTextMatchFilter(boolQueryBuilder, "publisher", publisher);
+        addRangeFilter(boolQueryBuilder, "price", minPrice, true);
+        addRangeFilter(boolQueryBuilder, "price", maxPrice, false);
+
+        SearchRequest.Builder searchRequestBuilder = new SearchRequest.Builder()
+                .index("products")
+                .from(pageable.getPageNumber() * pageable.getPageSize())
+                .size(pageable.getPageSize())
+                .query(boolQueryBuilder.build()._toQuery());
+
+        addSorting(searchRequestBuilder, pageable);
+        return searchRequestBuilder.build();
+    }
+
+    private void addTextMatchFilter(BoolQuery.Builder builder, String field, String value) {
+        if (StringUtils.hasText(value)) {
+            builder.filter(q -> q.match(m -> m.field(field).query(value)));
+        }
+    }
+
+    private void addRangeFilter(BoolQuery.Builder builder, String field, Double value, boolean isGte) {
+        if (value != null) {
+            builder.filter(q -> q.range(r -> isGte ? r.field(field).gte(JsonData.of(value)) : r.field(field).lte(JsonData.of(value))));
+        }
+    }
+
+    private void addSorting(SearchRequest.Builder builder, Pageable pageable) {
+        pageable.getSort().stream()
+                .forEach(order -> builder.sort(s -> s
+                        .field(f -> f
+                                .field(order.getProperty())
+                                .order(order.getDirection().isAscending() ? SortOrder.Asc : SortOrder.Desc)
+                        )
+                ));
+    }
 
 }
 

@@ -1,53 +1,67 @@
 <div class="flex">
   <div class="w-1/5 mr-8">
-    <h2 class="text-2xl font-bold mb-4 ml-4">Filters</h2>
-    <div class="space-y-4 ml-4">
+    <h2 class="text-2xl font-bold mb-4">Filters</h2>
+    <div class="space-y-6">
       <div>
-        <label class="block text-gray-700 font-bold mb-2">Price Range:</label>
-        <div *ngFor="let priceRange of priceRanges" class="flex items-center mb-2">
-          <input type="radio" [id]="priceRange.value" [value]="priceRange.value" [(ngModel)]="selectedPrice" (change)="onFilterChange()">
-          <label [for]="priceRange.value" class="ml-2">{{ priceRange.label }}</label>
+        <label class="block text-gray-700 font-bold mb-2">Price</label>
+        <div class="space-y-2">
+          <div *ngFor="let range of priceRanges" class="flex items-center">
+            <input type="radio" [id]="range.value" [value]="range.value" [(ngModel)]="selectedPrice" (change)="onFilterChange()">
+            <label [for]="range.value" class="ml-2">{{ range.label }}</label>
+          </div>
         </div>
       </div>
-      <button (click)="resetFilters()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        Reset Filters
-      </button>
+      <div>
+        <label class="block text-gray-700 font-bold mb-2">Category</label>
+        <div class="space-y-2">
+          <div *ngFor="let category of visibleCategories" class="flex items-center">
+            <input type="radio" [id]="category" [value]="category" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+            <label [for]="category" class="ml-2">{{ category }}</label>
+          </div>
+          <div *ngIf="!showAllCategories && categories.length > visibleCategoriesLimit">
+            <button (click)="toggleShowAllCategories()" class="text-blue-500 hover:underline">Show more</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="block text-gray-700 font-bold mb-2">Publisher</label>
+        <div class="space-y-2">
+          <div *ngFor="let publisher of publishers" class="flex items-center">
+            <input type="radio" [id]="publisher" [value]="publisher" [(ngModel)]="selectedPublisher" (change)="onFilterChange()">
+            <label [for]="publisher" class="ml-2">{{ publisher }}</label>
+          </div>
+        </div>
+        <div class="mt-6">
+          <button (click)="resetFilters()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition duration-300">Reset Filters</button>
+        </div>
+      </div>
     </div>
   </div>
-
   <div class="w-4/5">
-    <div *ngIf="searchResults.length > 0" class="space-y-6 mt-4 mr-4 ml-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div *ngFor="let book of searchResults" class="bg-white rounded-lg shadow-md overflow-hidden transition duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
-          <div class="relative">
-            <img [src]="book.imageurl" alt="Book Cover" (click)="goToBookDetail(book.id)" class="w-full h-52 object-cover transition duration-500 ease-in-out transform hover:scale-105"
-                 (error)="onImageError($event)">
-            <div class="absolute top-0 right-0 mt-2 mr-2">
-              <span class="bg-white text-gray-800 rounded-full px-2 py-1 text-xs font-semibold shadow-md">
-                {{ book.price | currency }}
-              </span>
-            </div>
+    <div *ngIf="searchResults.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 m-4">
+      <div *ngFor="let book of searchResults" class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="relative">
+          <img (click)="goToBookDetail(book.id)" (error)="onImageError($event)" [src]="book.image_url" alt="Book Cover" class="w-full h-48 object-cover cursor-pointer transition duration-300 ease-in-out transform hover:scale-105">
+          <div class="absolute top-0 right-0 mt-2 mr-2">
+            <span class="bg-blue-500 text-white text-sm font-semibold px-2 py-1 rounded-full">{{ book.price | currency }}</span>
           </div>
-          <div class="p-4">
-            <h2 class="text-lg font-bold mb-2 cursor-pointer overflow-hidden line-clamp-2" (click)="goToBookDetail(book.id)">
-              {{ book.title }}
-            </h2>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-500 text-sm">{{ book.author }}</span>
-            </div>
-          </div>
+        </div>
+        <div class="p-4">
+          <h2 (click)="goToBookDetail(book.id)" class="text-lg font-bold mb-2 cursor-pointer overflow-hidden line-clamp-2 hover:text-blue-500 transition duration-300">
+            {{ book.title }}
+          </h2>
         </div>
       </div>
     </div>
-
-    <div *ngIf="searchResults.length === 0" class="text-center text-gray-500">
+    <div *ngIf="searchResults.length === 0" class="text-center text-gray-500 text-xl mt-8">
       No books found.
     </div>
   </div>
 </div>
-<app-pagination class="mt-8 flex justify-center"
-                [currentPage]="currentPage"
-                [totalPages]="totalPages"
-                [maxVisiblePages]="maxVisiblePages"
-                (pageChange)="onPageChange($event)"
+<app-pagination
+  (pageChange)="onPageChange($event)"
+  [currentPage]="currentPage"
+  [maxVisiblePages]="maxVisiblePages"
+  [totalPages]="totalPages"
+  class="mt-8 flex justify-center"
 ></app-pagination>

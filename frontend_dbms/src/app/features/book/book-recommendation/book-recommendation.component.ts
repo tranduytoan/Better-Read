@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {BookService} from "../../../core/services/book.service";
 import {Router} from "@angular/router";
 
@@ -7,7 +7,7 @@ import {Router} from "@angular/router";
   templateUrl: './book-recommendation.component.html',
   styleUrl: './book-recommendation.component.css'
 })
-export class BookRecommendationComponent {
+export class BookRecommendationComponent implements OnInit{
   @Input() bookId: number = 0;
   recommendedBooks: any[] = [];
 

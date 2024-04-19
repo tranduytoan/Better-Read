@@ -88,4 +88,8 @@ public class ProductService {
     public List<Product> getProductsByFilters(Map<String, Object> filters, Double minPrice, Double maxPrice) throws IOException {
         return productRepository.searchWithFilters(filters, minPrice, maxPrice);
     }
+
+    public Page<Product> searchProducts(String title, String category,String publisher, Double minPrice, Double maxPrice, Pageable pageable) throws IOException {
+        return productRepository.searchProducts(title, category, publisher, minPrice, maxPrice, pageable);
+    }
 }

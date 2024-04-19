@@ -26,7 +26,7 @@ import java.util.Map;
 
 @RestController
 @Slf4j
-@RequestMapping("api/products")
+@RequestMapping("api/v1/products")
 public class ProductController {
 
     @Autowired
@@ -124,7 +124,6 @@ public class ProductController {
     ) throws IOException {
         return productService.getProductsByFilters(filters, minPrice, maxPrice);
     }
-    
 }
 
 

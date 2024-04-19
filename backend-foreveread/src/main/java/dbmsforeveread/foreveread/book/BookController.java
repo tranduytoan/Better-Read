@@ -15,9 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -97,5 +96,33 @@ public class BookController {
     public ResponseEntity<List<BookRecommendedResponse>> getRecommendedBooks(@PathVariable Long bookId) {
         List<BookRecommendedResponse> recommendedBooks = bookService.getRecommendedBooks(bookId);
         return ResponseEntity.ok(recommendedBooks);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<Product>> searchProducts(
+            @RequestParam(required = false, defaultValue = "") String title,
+            @RequestParam(required = false, defaultValue = "") String category,
+            @RequestParam(required = false, defaultValue = "") String publisher,
+            @RequestParam(required = false, defaultValue = "") String minPrice,
+            @RequestParam(required = false, defaultValue = "") String maxPrice,
+            Pageable pageable
+    ) throws IOException {
+        Map<String, Object> filters = new HashMap<>();
+        if (!category.isEmpty()) {
+            filters.put("category", category);
+        }
+        if (!publisher.isEmpty()) {
+            filters.put("publisher", publisher);
+        }
+        Double minPriceValue = null;
+        if (!minPrice.isEmpty() && !minPrice.equalsIgnoreCase("null")) {
+            minPriceValue = Double.parseDouble(minPrice);
+        }
+        Double maxPriceValue = null;
+        if (!maxPrice.isEmpty() && !maxPrice.equalsIgnoreCase("null") && !maxPrice.equalsIgnoreCase("undefined")) {
+            maxPriceValue = Double.parseDouble(maxPrice);
+        }
+        Page<Product> products = productService.searchProducts(title, category,publisher, minPriceValue, maxPriceValue, pageable);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 }

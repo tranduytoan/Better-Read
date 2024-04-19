@@ -52,11 +52,13 @@ export class ReviewComponent implements OnInit {
   }
 
   onPageChange(page: number): void {
+    this.currentPage = page;
     this.getReviews();
   }
 
   onPageSizeChange(pageSize: number): void {
     this.pageSize = pageSize;
+    this.currentPage = 0;
     this.getReviews();
   }
 
@@ -86,8 +88,7 @@ export class ReviewComponent implements OnInit {
           this.showReviewForm = false;
           this.reviewForm.reset();
           this.toastr.success('Review submitted successfully!');
-          this.getReviews();
-        },
+          },
         (error) => {
           console.error('Error submitting review:', error);
           this.toastr.error('Please try again.');

@@ -38,11 +38,17 @@ export class SearchService {
   // }
 
   searchBooks(request: any, page: number, size: number): Observable<any> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('size', size.toString());
+    const params = {
+      title: request.title,
+      category: request.category,
+      publisher: request.publisher,
+      minPrice: request.minPrice,
+      maxPrice: request.maxPrice,
+      page: page,
+      size: size
+    };
 
-    return this.http.post<any>(`${this.apiUrl}/search`, request, { params });
+    return this.http.get(`${this.apiUrl}/search`, { params });
   }
 
 

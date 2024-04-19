@@ -22,6 +22,7 @@ export class BookDetailComponent implements OnInit {
   quantity: number = 1;
   userId!: number | null;
   expandedDescription: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,

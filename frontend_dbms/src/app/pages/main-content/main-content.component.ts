@@ -3,6 +3,7 @@ import { SearchService } from "../../core/services/search.service";
 import { ScrollService } from "../../core/services/scroll.service";
 import { ActivatedRoute, Router } from "@angular/router";
 import {ToastrService} from "ngx-toastr";
+import {BookDTO} from "../../shared/models/bookDTO";
 
 @Component({
   selector: 'app-main-content',
@@ -17,8 +18,11 @@ export class MainContentComponent implements OnInit {
   pageSize: number = 12;
   searchResults: any[] = [];
   selectedPrice: string = '';
+  selectedPublisher: string = '';
   selectedCategory: string = '';
-  selectedReview: string = '';
+  publishers: string[] = ['Nhà Xuất Bản Kim Đồng', 'NXB Trẻ'];
+  categories: string[] = ['Manga', 'Kinh tế', 'Nuôi dạy con'];
+  books: BookDTO[] = [];
   priceRanges = [
     { value: '0-10', label: '0$ - 10$' },
     { value: '10-20', label: '10$ - 20$' },
@@ -26,6 +30,12 @@ export class MainContentComponent implements OnInit {
     { value: '50-100', label: '50$ - 100$' },
     { value: '100-', label: '100$+' }
   ];
+  visibleCategoriesLimit = 5;
+  showAllCategories = false;
+
+  get visibleCategories(): string[] {
+    return this.showAllCategories ? this.categories : this.categories.slice(0, this.visibleCategoriesLimit);
+  }
   constructor(
     private searchService: SearchService,
     private scrollService: ScrollService,
@@ -85,9 +95,10 @@ export class MainContentComponent implements OnInit {
       const [minPrice, maxPrice] = this.selectedPrice.split('-').map(Number);
       const request = {
         title: this.searchQuery,
+        category: this.selectedCategory,
+        publisher: this.selectedPublisher,
         minPrice: minPrice !== 0 ? minPrice : null,
         maxPrice: maxPrice !== 0 ? maxPrice : null,
-        categories: [] // You can add category filtering here if needed
       };
 
       this.searchService.searchBooks(request, this.currentPage, this.pageSize).subscribe(
@@ -125,14 +136,13 @@ export class MainContentComponent implements OnInit {
 
   resetFilters() {
     this.selectedPrice = '';
+    this.selectedCategory = '';
+    this.selectedPublisher = '';
     this.searchBooks();
   }
 
-  filterByPrice(price: number): boolean {
-    if (!this.selectedPrice) {
-      return true;
-    }
-    const [min, max] = this.selectedPrice.split('-').map(Number);
-    return price >= min && (max === 0 || !max || price <= max);
+  toggleShowAllCategories(): void {
+    this.showAllCategories = true;
   }
+
 }
