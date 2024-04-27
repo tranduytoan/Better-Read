@@ -7,6 +7,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.json.JsonData;
+import dbmsforeveread.foreveread.SearchEngine.service.RedisServiceElasticImpli;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -29,6 +30,9 @@ public class ProductRepository {
 
     @Autowired
     private ElasticsearchClient elasticsearchClient;
+
+    @Autowired
+    private RedisServiceElasticImpli redisServiceElacticImpli;
 
     public String createOrUpdateDocument( Product product ) throws IOException {
         IndexResponse response= elasticsearchClient.index(i->i
@@ -143,12 +147,16 @@ public class ProductRepository {
 
     public Page<Product> searchProducts(String title, String category, String publisher, Double minPrice, Double maxPrice, Pageable pageable) {
         try {
+            List<Product> products = redisServiceElacticImpli.getListProductWithTitle(title);
+            if (products != null && !products.isEmpty()) {
+                return new PageImpl<>(products, pageable, products.size());
+            }
             SearchRequest searchRequest = buildSearchRequest(title, category, publisher, minPrice, maxPrice, pageable);
             SearchResponse<Product> searchResponse = elasticsearchClient.search(searchRequest, Product.class);
-            List<Product> products = searchResponse.hits().hits().stream()
+            products = searchResponse.hits().hits().stream()
                     .map(Hit::source)
                     .collect(Collectors.toList());
-
+            redisServiceElacticImpli.addListProductToRedisWithTitle(products);
             return new PageImpl<>(products, pageable, searchResponse.hits().total().value());
         } catch (IOException e) {
             throw new RuntimeException("Failed to search products", e);
