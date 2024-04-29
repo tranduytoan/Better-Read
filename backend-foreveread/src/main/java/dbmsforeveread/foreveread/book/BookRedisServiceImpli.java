@@ -39,7 +39,6 @@ public class BookRedisServiceImpli extends BaseRedisServiceImpli implements Book
     public void addBookToRedis(BookDTO book) {
         String field = key + book.getId();
         try {
-
             String jsonString = redisObjectMapper.writeValueAsString(book);
             this.hashSet(key, field, jsonString);
         } catch (JsonProcessingException e) {
@@ -47,15 +46,14 @@ public class BookRedisServiceImpli extends BaseRedisServiceImpli implements Book
         }
     }
 
-    @Override
-    public void upadteBookToRedis(String id) {
-
-    }
 
     @Override
     public void deleteBookToRedis(String id) {
         String field = key + id;
-        this.delete(key, field);
+        String json = (String) this.hashGet(key, field);
+        if (json != null) {
+            this.delete(key, field);
+        }
     }
     // hoặc ây tuwf t đã cái delete vơới update t từ h kiểu thêm vào redis đã
 
@@ -78,7 +76,6 @@ public class BookRedisServiceImpli extends BaseRedisServiceImpli implements Book
 //        long endTime = System.currentTimeMillis();
 //        long searchTime = endTime - startTime;
 //        log.info("Time to search bookId{} in Redis: {} ms", id, searchTime);
-
         return BookResponse;
     }
 }

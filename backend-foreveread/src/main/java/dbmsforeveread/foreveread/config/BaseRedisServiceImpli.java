@@ -82,6 +82,12 @@ public class BaseRedisServiceImpli implements BaseRedisService {
     }
 
     @Override
+    public int numberFieldOfKey(String key) {
+        Map<String, Object> entries = hashOperations.entries(key);
+        return entries.size();
+    }
+
+    @Override
     public void delete(String key) {
         redisTemplate.delete(key);
     }
@@ -96,5 +102,9 @@ public class BaseRedisServiceImpli implements BaseRedisService {
         for (String field : fields) {
             hashOperations.delete(key, field);
         }
+    }
+
+    public boolean isExistKeyWithHash(String key) {
+        return hashOperations.getOperations().hasKey(key);
     }
 }

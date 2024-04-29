@@ -28,10 +28,14 @@ public interface BaseRedisService {
 
     Set<String> getFieldPrefixes(String key);
 
+    int numberFieldOfKey (String key);
+
     void delete(String key);
 
     void delete(String key, String field);
 
     void delete(String key, List<String> field);
+
+    boolean isExistKeyWithHash(String key);
 
 }

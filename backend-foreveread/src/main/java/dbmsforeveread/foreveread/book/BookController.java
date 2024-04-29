@@ -4,6 +4,7 @@ import dbmsforeveread.foreveread.SearchEngine.BookSearchRequest;
 import dbmsforeveread.foreveread.SearchEngine.domain.Product;
 import dbmsforeveread.foreveread.SearchEngine.service.ProductService;
 import dbmsforeveread.foreveread.category.Category;
+import jakarta.servlet.annotation.WebFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +22,27 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
+@WebFilter
 @RequestMapping("/api/v1/book")
 @RequiredArgsConstructor
 public class BookController {
+
     private final BookService bookService;
+
     private final ProductService productService;
-//    @Autowired
-//    private BookRedisService bookRedisServiceImpli;
+
+    @Autowired
+    private BookRedisService bookRedisServiceImpli;
+
     @GetMapping("/{id}")
     public ResponseEntity<BookDTO> getBookDetails(@PathVariable Long id) {
-//        BookDTO book = bookRedisServiceImpli.getBookFromRedis(id.toString());
-//        if (book == null) {
-//            book = bookService.getBookDetails(id);
-//            bookRedisServiceImpli.addBookToRedis(book);
-//        }
-//        return ResponseEntity.ok(book);
-        return ResponseEntity.ok(bookService.getBookDetails(id));
+        BookDTO book = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (book == null) {
+            book = bookService.getBookDetails(id);
+            bookRedisServiceImpli.addBookToRedis(book);
+        }
+        return ResponseEntity.ok(book);
+//        return ResponseEntity.ok(bookService.getBookDetails(id));
     }
 
     @PostMapping
@@ -47,23 +53,27 @@ public class BookController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
-//        Book updatedBook = bookService.updateBook(id, book);
+        Book updatedBook = bookService.updateBook(id, book);
         // update cache khi có sự thay đổi trong nhưững quyển trong cache
         // nếu không tìm thâấy thì thôi không cần update
         // trả lời câu hỏi tại sao cần set db trước xoá cache sau để đống bộ dữ liệu
-//        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
-//        if (bookDTO != null) {
-//            bookRedisServiceImpli.deleteBookToRedis(id.toString());
-//            BookDTO bookDTO1 = bookService.getBookDetails(id);
-//            bookRedisServiceImpli.addBookToRedis(bookDTO1);
-//        }
-        Book updatedBook = bookService.updateBook(id, book);
+        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (bookDTO != null) {
+            bookRedisServiceImpli.deleteBookToRedis(id.toString());
+            BookDTO bookDTO1 = bookService.getBookDetails(id);
+            bookRedisServiceImpli.addBookToRedis(bookDTO1);
+        }
+//        Book updatedBook = bookService.updateBook(id, book);
         return ResponseEntity.ok(updatedBook);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
         bookService.deleteBook(id);
+        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (bookDTO != null) {
+            bookRedisServiceImpli.deleteBookToRedis(id.toString());
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -122,6 +132,7 @@ public class BookController {
         if (!maxPrice.isEmpty() && !maxPrice.equalsIgnoreCase("null") && !maxPrice.equalsIgnoreCase("undefined")) {
             maxPriceValue = Double.parseDouble(maxPrice);
         }
+
         Page<Product> products = productService.searchProducts(title, category,publisher, minPriceValue, maxPriceValue, pageable);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }

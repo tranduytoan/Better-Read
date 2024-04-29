@@ -38,34 +38,41 @@ public class ProductService {
     private final ElasticsearchClient elasticsearchClient;
 
     @Autowired
+    private RedisServiceElasticImpli redisServiceElacticImpli;
+
+    @Autowired
     public ProductService(ElasticsearchClient elasticsearchClient) {
         this.elasticsearchClient = elasticsearchClient;
     }
 
 
     public List<Product> searchProductsByName(String title) {
-        try {
-            SearchRequest request = new SearchRequest.Builder()
-                    .index("products")
-                    .query(q -> q
-                            .match(m -> m
-                                    .field("title")
-                                    .query(title)
-                                    .field("title")
-                                    .query(title)
-                            )
-                    )
-                    .build();
+        List<Product> products = redisServiceElacticImpli.getListProductWithTitle(title);
+        if (products == null || products.isEmpty()) {
+            try {
+                SearchRequest request = new SearchRequest.Builder()
+                        .index("products")
+                        .query(q -> q
+                                .match(m -> m
+                                        .field("title")
+                                        .query(title)
+                                        .field("title")
+                                        .query(title)
+                                )
+                        )
+                        .build();
 
-            SearchResponse<Product> response = elasticsearchClient.search(request, Product.class);
-            List<Product> products = new ArrayList<>();
-            for (Hit<Product> hit : response.hits().hits()) {
-                products.add(hit.source());
+                SearchResponse<Product> response = elasticsearchClient.search(request, Product.class);
+                products = new ArrayList<>();
+                for (Hit<Product> hit : response.hits().hits()) {
+                    products.add(hit.source());
+                }
+                redisServiceElacticImpli.addListProductToRedisWithTitle(products);
+            } catch (IOException e) {
+                throw new RuntimeException("Error searching in Elasticsearch", e);
             }
-            return products;
-        } catch (IOException e) {
-            throw new RuntimeException("Error searching in Elasticsearch", e);
         }
+        return products;
     }
 
     public SearchResponse<Product> fuzzySearch(String approximateProductName) throws IOException {
@@ -91,5 +98,6 @@ public class ProductService {
 
     public Page<Product> searchProducts(String title, String category,String publisher, Double minPrice, Double maxPrice, Pageable pageable) throws IOException {
         return productRepository.searchProducts(title, category, publisher, minPrice, maxPrice, pageable);
+
     }
 }

@@ -19,15 +19,15 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/better_read
     username: root
-    password: ${env.MYSQL_PASSWORD}
+    password: 123456
   #    password: 123456
   jpa:
     hibernate: ddl-auto=update
   neo4j:
-    uri: ${env.AURA_URI}
+    uri: bolt://localhost:7687  # ${env.AURA_URI}
     authentication:
-      username: ${env.AURA_USER}
-      password: ${env.AURA_PASSWORD}
+      username: better_read
+      password: 12345678 # ${env.AURA_PASSWORD}
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
