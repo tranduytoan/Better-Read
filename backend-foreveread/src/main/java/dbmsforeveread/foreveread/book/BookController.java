@@ -6,12 +6,12 @@ import dbmsforeveread.foreveread.bookCategory.BookCategoryRepository;
 import dbmsforeveread.foreveread.SearchEngine.domain.Product;
 import dbmsforeveread.foreveread.SearchEngine.service.ProductService;
 import dbmsforeveread.foreveread.category.Category;
-import dbmsforeveread.foreveread.exceptions.BookNotFoundException;
 import dbmsforeveread.foreveread.inventory.InventoryRepository;
 import dbmsforeveread.foreveread.orderItem.OrderItemRepository;
-import jakarta.transaction.Transactional;
+import jakarta.servlet.annotation.WebFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,60 +23,58 @@ import java.util.*;
 
 @Slf4j
 @RestController
+@WebFilter
 @RequestMapping("/api/v1/book")
 @RequiredArgsConstructor
 public class BookController {
+
     private final BookService bookService;
+
     private final ProductService productService;
     private final OrderItemRepository orderItemRepository;
     private final InventoryRepository inventoryRepository;
     private final BookCategoryRepository bookCategoryRepository;
     private final BookAuthorRepository bookAuthorRepository;
-//    @Autowired
-//    private BookRedisService bookRedisServiceImpli;
+    @Autowired
+    private BookRedisService bookRedisServiceImpli;
+
     @GetMapping("/{id}")
     public ResponseEntity<BookDTO> getBookDetails(@PathVariable Long id) {
-//        BookDTO book = bookRedisServiceImpli.getBookFromRedis(id.toString());
-//        if (book == null) {
-//            book = bookService.getBookDetails(id);
-//            bookRedisServiceImpli.addBookToRedis(book);
-//        }
-//        return ResponseEntity.ok(book);
-        return ResponseEntity.ok(bookService.getBookDetails(id));
+        BookDTO book = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (book == null) {
+            book = bookService.getBookDetails(id);
+            bookRedisServiceImpli.addBookToRedis(book);
+        }
+        return ResponseEntity.ok(book);
+//        return ResponseEntity.ok(bookService.getBookDetails(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book book) {
-//        Book updatedBook = bookService.updateBook(id, book);
+        Book updatedBook = bookService.updateBook(id, book);
         // update cache khi có sự thay đổi trong nhưững quyển trong cache
         // nếu không tìm thâấy thì thôi không cần update
         // trả lời câu hỏi tại sao cần set db trước xoá cache sau để đống bộ dữ liệu
-//        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
-//        if (bookDTO != null) {
-//            bookRedisServiceImpli.deleteBookToRedis(id.toString());
-//            BookDTO bookDTO1 = bookService.getBookDetails(id);
-//            bookRedisServiceImpli.addBookToRedis(bookDTO1);
-//        }
-        Book updatedBook = bookService.updateBook(id, book);
+        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (bookDTO != null) {
+            bookRedisServiceImpli.deleteBookToRedis(id.toString());
+            BookDTO bookDTO1 = bookService.getBookDetails(id);
+            bookRedisServiceImpli.addBookToRedis(bookDTO1);
+        }
+//        Book updatedBook = bookService.updateBook(id, book);
         return ResponseEntity.ok(updatedBook);
     }
 
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        try {
-            Book book = bookService.getBookById(id);
-//            bookCategoryRepository.deleteAllByBookId(id);
-            orderItemRepository.deleteByBookId(id);
-            inventoryRepository.deleteByBookId(id);
-//            bookAuthorRepository.deleteAllByBookId(id);
-            bookService.deleteBook(id);
-            return ResponseEntity.noContent().build();
-        } catch (BookNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        bookService.deleteBook(id);
+        BookDTO bookDTO = bookRedisServiceImpli.getBookFromRedis(id.toString());
+        if (bookDTO != null) {
+            bookRedisServiceImpli.deleteBookToRedis(id.toString());
         }
+        return ResponseEntity.noContent().build();
     }
 
 //    @GetMapping("/search")
@@ -134,6 +132,7 @@ public class BookController {
         if (!maxPrice.isEmpty() && !maxPrice.equalsIgnoreCase("null") && !maxPrice.equalsIgnoreCase("undefined")) {
             maxPriceValue = Double.parseDouble(maxPrice);
         }
+
         Page<Product> products = productService.searchProducts(title, category,publisher, minPriceValue, maxPriceValue, pageable);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }

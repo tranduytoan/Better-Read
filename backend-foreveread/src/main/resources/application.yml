@@ -24,9 +24,9 @@ spring:
   jpa:
     hibernate: ddl-auto=update
   neo4j:
-    uri: ${env.AURA_URI}
+    uri: bolt://localhost:7687  # ${env.AURA_URI}
     authentication:
-      username: ${env.AURA_USER}
+      username: ${env.AURA_USERNAME}
       password: ${env.AURA_PASSWORD}
   jackson:
     serialization:
