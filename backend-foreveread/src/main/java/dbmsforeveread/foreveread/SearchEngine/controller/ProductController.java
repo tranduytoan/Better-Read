@@ -103,26 +103,22 @@ public class ProductController {
 
     @GetMapping("/autoSuggest/{partialProductName}")
     List<String> autoSuggestProductSearch(@PathVariable String partialProductName) throws IOException {
-        SearchResponse<Product> searchResponse = productService.autoSuggestProduct(partialProductName);
-        List<Hit<Product>> hitList  =  searchResponse.hits().hits();
-        List<Product> productList = new ArrayList<>();
-        for(Hit<Product> hit : hitList){
-            productList.add(hit.source());
+        try {
+            SearchResponse<Product> searchResponse = productService.autoSuggestProduct(partialProductName);
+            List<Hit<Product>> hitList = searchResponse.hits().hits();
+            List<Product> productList = new ArrayList<>();
+            for (Hit<Product> hit : hitList) {
+                productList.add(hit.source());
+            }
+            List<String> listOfProductNames = new ArrayList<>();
+            for (Product product : productList) {
+                listOfProductNames.add(product.getTitle());
+            }
+            return listOfProductNames;
+        }  catch (IOException e) {
+            log.error("Error occurred while retrieving auto-suggestions", e);
+            return (List<String>) ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        List<String> listOfProductNames = new ArrayList<>();
-        for(Product product : productList){
-            listOfProductNames.add(product.getTitle())  ;
-        }
-        return listOfProductNames;
-    }
-
-    @GetMapping("/searchFilter")
-    public List<Product> searchFilter(
-            @RequestParam(required = false) Map<String, Object> filters,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
-    ) throws IOException {
-        return productService.getProductsByFilters(filters, minPrice, maxPrice);
     }
 }
 

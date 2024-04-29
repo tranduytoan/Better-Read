@@ -1,23 +1,25 @@
 package dbmsforeveread.foreveread.book;
 
-import dbmsforeveread.foreveread.SearchEngine.BookSearchRequest;
+import co.elastic.clients.elasticsearch.nodes.Http;
+import dbmsforeveread.foreveread.bookCategory.BookAuthorRepository;
+import dbmsforeveread.foreveread.bookCategory.BookCategoryRepository;
 import dbmsforeveread.foreveread.SearchEngine.domain.Product;
 import dbmsforeveread.foreveread.SearchEngine.service.ProductService;
 import dbmsforeveread.foreveread.category.Category;
+import dbmsforeveread.foreveread.exceptions.BookNotFoundException;
+import dbmsforeveread.foreveread.inventory.InventoryRepository;
+import dbmsforeveread.foreveread.orderItem.OrderItemRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -26,6 +28,10 @@ import java.util.stream.Collectors;
 public class BookController {
     private final BookService bookService;
     private final ProductService productService;
+    private final OrderItemRepository orderItemRepository;
+    private final InventoryRepository inventoryRepository;
+    private final BookCategoryRepository bookCategoryRepository;
+    private final BookAuthorRepository bookAuthorRepository;
 //    @Autowired
 //    private BookRedisService bookRedisServiceImpli;
     @GetMapping("/{id}")
@@ -37,12 +43,6 @@ public class BookController {
 //        }
 //        return ResponseEntity.ok(book);
         return ResponseEntity.ok(bookService.getBookDetails(id));
-    }
-
-    @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody Book book) {
-        Book createdBook = bookService.createBook(book);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 
     @PutMapping("/{id}")
@@ -61,10 +61,22 @@ public class BookController {
         return ResponseEntity.ok(updatedBook);
     }
 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        bookService.deleteBook(id);
-        return ResponseEntity.noContent().build();
+        try {
+            Book book = bookService.getBookById(id);
+//            bookCategoryRepository.deleteAllByBookId(id);
+            orderItemRepository.deleteByBookId(id);
+            inventoryRepository.deleteByBookId(id);
+//            bookAuthorRepository.deleteAllByBookId(id);
+            bookService.deleteBook(id);
+            return ResponseEntity.noContent().build();
+        } catch (BookNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 //    @GetMapping("/search")
@@ -124,5 +136,17 @@ public class BookController {
         }
         Page<Product> products = productService.searchProducts(title, category,publisher, minPriceValue, maxPriceValue, pageable);
         return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> addBook(@RequestBody BookDTO book) {
+        try {
+//            Book savedBook = bookService.addBookEvent(book);
+            bookService.addBookEvent(book);
+            return ResponseEntity.status(HttpStatus.CREATED).body(book);
+        } catch (Exception e) {
+            // Handle any exceptions and return appropriate error response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
